@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 4                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2002 The PHP Group                                |
+   | Copyright (c) 1997-2003 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 2.02 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -94,7 +94,9 @@ PHP_MINIT_FUNCTION(dio)
 #ifdef O_SYNC
 	RDIOC(O_SYNC);
 #endif
+#ifdef O_ASYNC
 	RDIOC(O_ASYNC);
+#endif
 	RDIOC(O_NOCTTY);
 	RDIOC(S_IRWXU);
 	RDIOC(S_IRUSR);
@@ -144,8 +146,8 @@ PHP_FUNCTION(dio_open)
 	php_fd_t *f;
 	char     *file_name;
 	int       file_name_length;
-	int       flags;
-	mode_t    mode = 0;
+	long      flags;
+	long      mode = 0;
 	int       fd;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl|l", &file_name, &file_name_length, &flags, &mode) == FAILURE) {
@@ -176,7 +178,7 @@ PHP_FUNCTION(dio_read)
 	zval     *r_fd;
 	php_fd_t *f;
 	char     *data;
-	int       bytes = 1024;
+	long      bytes = 1024;
 	ssize_t   res;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r|l", &r_fd, &bytes) == FAILURE) {
@@ -187,6 +189,7 @@ PHP_FUNCTION(dio_read)
 	data = emalloc(bytes + 1);
 	res = read(f->fd, data, bytes);
 	if (res <= 0) {
+		efree(data);
 		RETURN_NULL();
 	}
 
@@ -204,8 +207,8 @@ PHP_FUNCTION(dio_write)
 	zval     *r_fd;
 	php_fd_t *f;
 	char     *data;
-	size_t    data_len;
-	size_t    trunc_len = 0;
+	int       data_len;
+	long      trunc_len = 0;
 	ssize_t   res;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs|l", &r_fd, &data, &data_len, &trunc_len) == FAILURE) {
@@ -229,7 +232,7 @@ PHP_FUNCTION(dio_truncate)
 {
 	zval     *r_fd;
 	php_fd_t *f;
-	off_t     offset;
+	long      offset;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl", &r_fd, &offset) == FAILURE) {
 		return;
@@ -290,8 +293,8 @@ PHP_FUNCTION(dio_seek)
 {
 	zval     *r_fd;
 	php_fd_t *f;
-	off_t     offset;
-	int       whence = SEEK_SET;
+	long      offset;
+	long      whence = SEEK_SET;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl|l", &r_fd, &offset, &whence) == FAILURE) {
 		return;
@@ -309,7 +312,7 @@ PHP_FUNCTION(dio_fcntl)
 	zval     *r_fd;
 	zval     *arg = NULL;
 	php_fd_t *f;
-	int       cmd;
+	long      cmd;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rl|z", &r_fd, &cmd, &arg) == FAILURE) {
 		return;
