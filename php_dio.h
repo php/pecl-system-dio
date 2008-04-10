@@ -20,6 +20,8 @@
 extern zend_module_entry dio_module_entry;
 #define phpext_dio_ptr &dio_module_entry
 
+#define PHP_DIO_VERSION "0.1.0-dev"
+
 #ifdef PHP_WIN32
 #define PHP_DIO_API __declspec(dllexport)
 #else
