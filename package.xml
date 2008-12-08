@@ -10,6 +10,12 @@
    <email>sterling@php.net</email>
    <role>lead</role>
   </maintainer>
+ <maintainer>
+   <user>alan_k</user>
+   <name>Alan Knowles</name>
+   <email>alan_k@php.net</email>
+   <role>lead</role>
+  </maintainer>
  </maintainers>
  <description>
 PHP supports the direct io functions as described in the 
@@ -23,13 +29,14 @@ more than adequate.
  <license>PHP</license>
  <release>
   <state>beta</state>
-  <version>5.0rc1</version>
-  <date>2004-03-19</date>
+  <version>0.0.2</version>
+  <date>2008-12-08</date>
   <notes>
 package.xml added to support intallation using pear installer
+Packaged so it can be used.
   </notes>
   <filelist>
-   <file role="doc" name="CREDITS"/>
+   <!-- <file role="doc" name="CREDITS"/> -->
    <file role="src" name="config.m4"/>
    <file role="src" name="dio.c"/>
    <file role="src" name="php_dio.h"/>
