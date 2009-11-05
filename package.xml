@@ -1,53 +1,67 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
-<!DOCTYPE package SYSTEM "../pear/package.dtd">
-<package>
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.9.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+http://pear.php.net/dtd/tasks-1.0.xsd
+http://pear.php.net/dtd/package-2.0
+http://pear.php.net/dtd/package-2.0.xsd">
  <name>dio</name>
+ <channel>pecl.php.net</channel>
  <summary>Direct I/O functions</summary>
- <maintainers>
-  <maintainer>
-   <user>sterling</user>
-   <name>Sterling Hughes</name>
-   <email>sterling@php.net</email>
-   <role>lead</role>
-  </maintainer>
- <maintainer>
-   <user>alan_k</user>
-   <name>Alan Knowles</name>
-   <email>alan_k@php.net</email>
-   <role>lead</role>
-  </maintainer>
- </maintainers>
- <description>
-PHP supports the direct io functions as described in the 
+ <description>PHP supports the direct io functions as described in the 
 Posix Standard (Section 6) for performing I/O functions at 
 a lower level than the C-Language stream I/O functions 
 (fopen(), fread(),..). The use of the DIO functions should 
 be considered only when direct control of a device is needed. 
 In all other cases, the standard filesystem functions are 
 more than adequate.
+ 
  </description>
- <license>PHP</license>
- <release>
-  <state>beta</state>
-  <version>0.0.2</version>
-  <date>2008-12-08</date>
-  <notes>
+ <lead>
+  <name>Sterling Hughes</name>
+  <user>sterling</user>
+  <email>sterling@php.net</email>
+  <active>yes</active>
+ </lead>
+ <lead>
+  <name>Alan Knowles</name>
+  <user>alan_k</user>
+  <email>alan_k@php.net</email>
+  <active>yes</active>
+ </lead>
+ <date>2009-11-05</date>
+ <time>12:56:16</time>
+ <version>
+  <release>0.0.2</release>
+  <api>0.0.2</api>
+ </version>
+ <stability>
+  <release>beta</release>
+  <api>beta</api>
+ </stability>
+ <license uri="http://www.php.net/license">PHP</license>
+ <notes>
 package.xml added to support intallation using pear installer
 Packaged so it can be used.
-  </notes>
-  <filelist>
-   <!-- <file role="doc" name="CREDITS"/> -->
-   <file role="src" name="config.m4"/>
-   <file role="src" name="dio.c"/>
-   <file role="src" name="php_dio.h"/>
-   <file role="test" name="tests/001.phpt"/>
-  </filelist>
-  <deps>
-   <dep type="php" rel="ge" version="5" />
-   <!-- doesn't work yet <dep type="os"  rel="has" name="unix" /> -->
-  </deps>
- </release>
+ </notes>
+ <contents>
+  <dir name="/">
+   <dir name="tests">
+    <file name="001.phpt" role="test" />
+   </dir> <!-- //tests -->
+   <file name="config.m4" role="src" />
+   <file name="dio.c" role="src" />
+   <file name="php_dio.h" role="src" />
+  </dir> <!-- / -->
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0b1</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <providesextension>dio</providesextension>
+ <extsrcrelease />
 </package>
-<!--
-vim:et:ts=1:sw=1
--->
