@@ -16,22 +16,16 @@ more than adequate.
  
  </description>
  <lead>
-  <name>Sterling Hughes</name>
-  <user>sterling</user>
-  <email>sterling@php.net</email>
-  <active>yes</active>
- </lead>
- <lead>
-  <name>Alan Knowles</name>
-  <user>alan_k</user>
-  <email>alan_k@php.net</email>
+  <name>Melanie Rhianna Lewis</name>
+  <user>cyberspice</user>
+  <email>cyberspice@php.net</email>
   <active>yes</active>
  </lead>
  <date>2009-11-05</date>
  <time>12:56:16</time>
  <version>
-  <release>0.0.2</release>
-  <api>0.0.2</api>
+  <release>0.0.3</release>
+  <api>0.0.3</api>
  </version>
  <stability>
   <release>beta</release>

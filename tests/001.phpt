@@ -1,21 +1,15 @@
 --TEST--
-Check for dio presence
+Test dio legacy open
 --SKIPIF--
 <?php if (!extension_loaded("dio")) print "skip"; ?>
 --FILE--
 <?php 
-echo "dio extension is available";
-/*
-	you can add regression tests for your extension here
-
-  the output of your test code has to be equal to the
-  text in the --EXPECT-- section below for the tests
-  to pass, differences between the output and the
-  expected text are interpreted as failure
-
-	see php5/tests/README for further information on
-  writing regression tests
-*/
+	$f = dio_open("/dev/null",O_RDONLY);
+	if ($f) {
+		echo "Legacy open passed";
+	} else {
+		echo "Legacy open failed";
+	}
 ?>
 --EXPECT--
-dio extension is available
+Legacy open passed

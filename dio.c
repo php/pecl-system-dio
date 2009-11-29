@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 5                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2004 The PHP Group                                |
+   | Copyright (c) 1997-2009 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.0 of the PHP license,       |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -13,6 +13,7 @@
    | license@php.net so we can mail you a copy immediately.               |
    +----------------------------------------------------------------------+
    | Author: Sterling Hughes <sterling@php.net>                           |
+   | Author: Melanie Rhianna Lewis <cyberspice@php.net>                   |
    +----------------------------------------------------------------------+
  */
 
@@ -24,6 +25,7 @@
 #include "php_ini.h"
 #include "ext/standard/info.h"
 #include "php_dio.h"
+#include "php_dio_stream_wrappers.h"
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -46,120 +48,19 @@
 # endif /* CNEW_RTSCTS */
 #endif /* !CRTSCTS */
 
+/*
+   +----------------------------------------------------------------------+
+   |                       DEPRECATED FUNCTIONALITY                       |
+   +----------------------------------------------------------------------+
+   | The functions below are from the earlier DIO versions.  They will    |
+   | continue to be maintained but not extended.  It is thoroughly        |
+   | recommended that you should use either the stream wrappers or the    |
+   | DIO classes in new code. - Melanie                                   |
+   +----------------------------------------------------------------------+
+ */
+
 #define le_fd_name "Direct I/O File Descriptor"
 static int le_fd;
-
-function_entry dio_functions[] = {
-	PHP_FE(dio_open,      NULL)
-#ifndef PHP_WIN32
-	PHP_FE(dio_truncate,  NULL)
-#endif
-	PHP_FE(dio_stat,      NULL)
-	PHP_FE(dio_seek,      NULL)
-#ifndef PHP_WIN32
-	PHP_FE(dio_fcntl,     NULL)
-#endif
-	PHP_FE(dio_read,      NULL)
-	PHP_FE(dio_write,     NULL)
-	PHP_FE(dio_close,     NULL)
-#ifndef PHP_WIN32
-	PHP_FE(dio_tcsetattr,     NULL)
-#endif
-	{NULL, NULL, NULL}
-};
-
-zend_module_entry dio_module_entry = {
-	STANDARD_MODULE_HEADER,
-	"dio",
-	dio_functions,
-	PHP_MINIT(dio),
-	NULL,
-	NULL,	
-	NULL,
-	PHP_MINFO(dio),
-	PHP_DIO_VERSION,
-	STANDARD_MODULE_PROPERTIES
-};
-
-#ifdef COMPILE_DL_DIO
-ZEND_GET_MODULE(dio)
-#endif
-
-static void _dio_close_fd(zend_rsrc_list_entry *rsrc TSRMLS_DC)
-{
-	php_fd_t *f = (php_fd_t *) rsrc->ptr;
-	if (f) {
-		close(f->fd);
-		free(f);
-	}
-}
-
-#define RDIOC(c) REGISTER_LONG_CONSTANT(#c, c, CONST_CS | CONST_PERSISTENT)
-#define DIO_UNDEF_CONST -1
-
-PHP_MINIT_FUNCTION(dio)
-{
-	le_fd = zend_register_list_destructors_ex(_dio_close_fd, NULL, le_fd_name, module_number);
-
-	RDIOC(O_RDONLY);
-	RDIOC(O_WRONLY);
-	RDIOC(O_RDWR);
-	RDIOC(O_CREAT);
-	RDIOC(O_EXCL);
-	RDIOC(O_TRUNC);
-	RDIOC(O_APPEND);
-#ifdef O_NONBLOCK
-	RDIOC(O_NONBLOCK);
-#endif
-#ifdef O_NDELAY
-	RDIOC(O_NDELAY);
-#endif
-#ifdef O_SYNC
-	RDIOC(O_SYNC);
-#endif
-#ifdef O_ASYNC
-	RDIOC(O_ASYNC);
-#endif
-#ifdef O_NOCTTY
-	RDIOC(O_NOCTTY);
-#endif
-#ifndef PHP_WIN32
-	RDIOC(S_IRWXU);
-	RDIOC(S_IRUSR);
-	RDIOC(S_IWUSR);
-	RDIOC(S_IXUSR);
-	RDIOC(S_IRWXG);
-	RDIOC(S_IRGRP);
-	RDIOC(S_IWGRP);
-	RDIOC(S_IXGRP);
-	RDIOC(S_IRWXO);
-	RDIOC(S_IROTH);
-	RDIOC(S_IWOTH);
-	RDIOC(S_IXOTH);
-	RDIOC(F_DUPFD);
-	RDIOC(F_GETFD);
-	RDIOC(F_GETFL);
-	RDIOC(F_SETFL);
-	RDIOC(F_GETLK);
-	RDIOC(F_SETLK);
-	RDIOC(F_SETLKW);
-	RDIOC(F_SETOWN);
-	RDIOC(F_GETOWN);
-	RDIOC(F_UNLCK);
-	RDIOC(F_RDLCK);
-	RDIOC(F_WRLCK);
-#endif
-	
-	return SUCCESS;
-}
-
-PHP_MINFO_FUNCTION(dio)
-{
-	php_info_print_table_start();
-	php_info_print_table_header(2, "dio support", "enabled");
-	php_info_print_table_row(2, "version", PHP_DIO_VERSION);
-	php_info_print_table_end();
-}
 
 static int new_php_fd(php_fd_t **f, int fd)
 {
@@ -168,6 +69,15 @@ static int new_php_fd(php_fd_t **f, int fd)
 	}
 	(*f)->fd = fd;
 	return 1;
+}
+
+static void _dio_close_fd(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+{
+	php_fd_t *f = (php_fd_t *) rsrc->ptr;
+	if (f) {
+		close(f->fd);
+		free(f);
+	}
 }
 
 /* {{{ proto resource dio_open(string filename, int flags[, int mode])
@@ -200,7 +110,7 @@ PHP_FUNCTION(dio_open)
 		RETURN_FALSE;
 	}
 
-	
+
 	if (!new_php_fd(&f, fd)) {
 		RETURN_FALSE;
 	}
@@ -425,7 +335,7 @@ PHP_FUNCTION(dio_fcntl)
 		}
 		case F_GETLK: {
 			struct flock lk = {0};
-		
+
 			fcntl(f->fd, cmd, &lk);
 
 			array_init(return_value);
@@ -480,7 +390,7 @@ PHP_FUNCTION(dio_tcsetattr)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rz", &r_fd, &arg) == FAILURE) {
 		return;
 	}
-	
+
 	ZEND_FETCH_RESOURCE(f, php_fd_t *, &r_fd, -1, le_fd_name, le_fd);
 
 	if (Z_TYPE_P(arg) != IS_ARRAY) {
@@ -506,17 +416,17 @@ PHP_FUNCTION(dio_tcsetattr)
 		Stop_Bits = 1;
 	} else {
 		Stop_Bits = Z_LVAL_PP(element);
-	} 
+	}
 
 	if (zend_hash_find(fh, "parity", sizeof("parity"), (void **) &element) == FAILURE) {
 		Parity = 0;
 	} else {
 		Parity = Z_LVAL_PP(element);
-	} 
+	}
 
 	/* assign to correct values... */
 	switch (Baud_Rate)  {
-		case 38400:            
+		case 38400:
 			BAUD = B38400;
 			break;
 		case 19200:
@@ -581,7 +491,7 @@ PHP_FUNCTION(dio_tcsetattr)
 		default:
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid data bits %d", Data_Bits);
 			RETURN_FALSE;
-	}   
+	}
 	switch (Stop_Bits) {
 		case 1:
 			STOPBITS = 0;
@@ -592,25 +502,25 @@ PHP_FUNCTION(dio_tcsetattr)
 		default:
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid stop bits %d", Stop_Bits);
 			RETURN_FALSE;
-	}   
+	}
 
 	switch (Parity) {
-		case 0:    
+		case 0:
 			PARITYON = 0;
 			PARITY = 0;
 			break;
-		case 1:                         
+		case 1:
 			PARITYON = PARENB;
 			PARITY = PARODD;
 			break;
-		case 2:                         
+		case 2:
 			PARITYON = PARENB;
 			PARITY = 0;
 			break;
 		default:
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid parity %d", Parity);
 			RETURN_FALSE;
-	}   
+	}
 
 	memset(&newtio, 0, sizeof(newtio));
 	tcgetattr(f->fd, &newtio);
@@ -634,7 +544,7 @@ PHP_FUNCTION(dio_close)
 {
 	zval     *r_fd;
 	php_fd_t *f;
-	
+
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &r_fd) == FAILURE) {
 		return;
 	}
@@ -642,6 +552,140 @@ PHP_FUNCTION(dio_close)
 	ZEND_FETCH_RESOURCE(f, php_fd_t *, &r_fd, -1, le_fd_name, le_fd);
 
 	zend_list_delete(Z_LVAL_P(r_fd));
+}
+/* }}} */
+
+/*
+   +----------------------------------------------------------------------+
+   |                   END OF DEPRECATED FUNCTIONALITY                    |
+   +----------------------------------------------------------------------+
+ */
+
+function_entry dio_functions[] = {
+	/* Class functions. */
+
+	/* Legacy functions (Deprecated - See dio_legacy.c) */
+	PHP_FE(dio_open,      NULL)
+#ifndef PHP_WIN32
+	PHP_FE(dio_truncate,  NULL)
+#endif
+	PHP_FE(dio_stat,      NULL)
+	PHP_FE(dio_seek,      NULL)
+#ifndef PHP_WIN32
+	PHP_FE(dio_fcntl,     NULL)
+#endif
+	PHP_FE(dio_read,      NULL)
+	PHP_FE(dio_write,     NULL)
+	PHP_FE(dio_close,     NULL)
+#ifndef PHP_WIN32
+	PHP_FE(dio_tcsetattr, NULL)
+#endif
+
+	/* Stream functions */
+	PHP_FE(dio_raw, NULL)
+	PHP_FE(dio_serial, NULL)
+
+	/* End of functions */
+	{NULL, NULL, NULL}
+};
+
+zend_module_entry dio_module_entry = {
+	STANDARD_MODULE_HEADER,
+	"dio",
+	dio_functions,
+	PHP_MINIT(dio),
+	NULL,
+	NULL,	
+	NULL,
+	PHP_MINFO(dio),
+	PHP_DIO_VERSION,
+	STANDARD_MODULE_PROPERTIES
+};
+
+#ifdef COMPILE_DL_DIO
+ZEND_GET_MODULE(dio)
+#endif
+
+#define RDIOC(c) REGISTER_LONG_CONSTANT(#c, c, CONST_CS | CONST_PERSISTENT)
+#define DIO_UNDEF_CONST -1
+
+/* {{{ PHP_MINIT_FUNCTION
+ */
+PHP_MINIT_FUNCTION(dio)
+{
+	le_fd = zend_register_list_destructors_ex(_dio_close_fd, NULL, le_fd_name, module_number);
+
+	RDIOC(O_RDONLY);
+	RDIOC(O_WRONLY);
+	RDIOC(O_RDWR);
+	RDIOC(O_CREAT);
+	RDIOC(O_EXCL);
+	RDIOC(O_TRUNC);
+	RDIOC(O_APPEND);
+#ifdef O_NONBLOCK
+	RDIOC(O_NONBLOCK);
+#endif
+#ifdef O_NDELAY
+	RDIOC(O_NDELAY);
+#endif
+#ifdef O_SYNC
+	RDIOC(O_SYNC);
+#endif
+#ifdef O_ASYNC
+	RDIOC(O_ASYNC);
+#endif
+#ifdef O_NOCTTY
+	RDIOC(O_NOCTTY);
+#endif
+#ifndef PHP_WIN32
+	RDIOC(S_IRWXU);
+	RDIOC(S_IRUSR);
+	RDIOC(S_IWUSR);
+	RDIOC(S_IXUSR);
+	RDIOC(S_IRWXG);
+	RDIOC(S_IRGRP);
+	RDIOC(S_IWGRP);
+	RDIOC(S_IXGRP);
+	RDIOC(S_IRWXO);
+	RDIOC(S_IROTH);
+	RDIOC(S_IWOTH);
+	RDIOC(S_IXOTH);
+	RDIOC(F_DUPFD);
+	RDIOC(F_GETFD);
+	RDIOC(F_GETFL);
+	RDIOC(F_SETFL);
+	RDIOC(F_GETLK);
+	RDIOC(F_SETLK);
+	RDIOC(F_SETLKW);
+	RDIOC(F_SETOWN);
+	RDIOC(F_GETOWN);
+	RDIOC(F_UNLCK);
+	RDIOC(F_RDLCK);
+	RDIOC(F_WRLCK);
+#endif
+
+	return (php_register_url_stream_wrapper(DIO_RAW_STREAM_NAME, &php_dio_raw_stream_wrapper TSRMLS_CC) == SUCCESS &&
+			php_register_url_stream_wrapper(DIO_SERIAL_STREAM_NAME, &php_dio_serial_stream_wrapper TSRMLS_CC) == SUCCESS) ? SUCCESS : FAILURE;
+}
+/* }}} */
+
+/* {{{ PHP_MSHUTDOWN_FUNCTION
+ */
+PHP_MSHUTDOWN_FUNCTION(dio)
+{
+	return (php_unregister_url_stream_wrapper(DIO_RAW_STREAM_NAME TSRMLS_CC) == SUCCESS &&
+			php_unregister_url_stream_wrapper(DIO_SERIAL_STREAM_NAME TSRMLS_CC) == SUCCESS) ? SUCCESS : FAILURE;
+}
+/* }}} */
+
+/* {{{ PHP_MINFO_FUNCTION
+ */
+PHP_MINFO_FUNCTION(dio)
+{
+	php_info_print_table_start();
+	php_info_print_table_header(2, "dio support", "enabled");
+	php_info_print_table_row(2, "version", PHP_DIO_VERSION);
+	php_info_print_table_end();
 }
 /* }}} */
 
