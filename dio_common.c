@@ -453,9 +453,10 @@ size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count)
 				}
 			}
 
-			/* If not timed out and not end of file calculate how long
-			 * it took us and loop if we still have time out time left. */
-			if (ret) {
+			/* If not timed out and not end of file and not all data read
+			 * calculate how long it took us and loop if we still have time
+			 * out time left. */
+			if (count && ret) {
 				(void) gettimeofday(&after, NULL);
 
 				/* Diff the timevals */
@@ -464,10 +465,10 @@ size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count)
 				/* Now adjust the timeout.  If it errors we've run out
 				 * of time. */
 				if (dio_timeval_subtract(&timeout, &diff, &timeout)) {
-					ret = 0;
+					break;
 				}
 			}
-		} while (ret); /* Until time out or end of file. */
+		} while (count && ret); /* Until time out or end of file or all data read. */
 
 		return total;
 	}
