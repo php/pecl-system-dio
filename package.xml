@@ -33,7 +33,7 @@ more than adequate.
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-package.xml added to support intallation using pear installer
+package.xml added to support installation using pear installer
 Packaged so it can be used.
  </notes>
  <contents>
@@ -43,7 +43,15 @@ Packaged so it can be used.
    </dir> <!-- //tests -->
    <file name="config.m4" role="src" />
    <file name="dio.c" role="src" />
+   <file name="dio_common.c" role="src" />
+   <file name="dio_posix.c" role="src" />
+   <file name="dio_win32.c" role="src" />
+   <file name="dio_stream_wrappers.c" role="src" />
    <file name="php_dio.h" role="src" />
+   <file name="php_dio_common.h" role="src" />
+   <file name="php_dio_posix.h" role="src" />
+   <file name="php_dio_win32.h" role="src" />
+   <file name="php_dio_stream_wrappers.h" role="src" />
   </dir> <!-- / -->
  </contents>
  <dependencies>

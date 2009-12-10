@@ -19,68 +19,50 @@
 #ifndef PHP_DIO_COMMON_H_
 #define PHP_DIO_COMMON_H_
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/time.h>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#include <fcntl.h>
-#ifndef PHP_WIN32
-#include <termios.h>
-#endif
-
-#include "php.h"
-
-typedef struct _php_dio_stream_data {
-#ifndef PHP_WIN32
-	int fd;
+#ifdef PHP_WIN32
+#define PHP_DIO_API __declspec(dllexport)
 #else
-	int fh;
-#endif
-	int flags;
-	int end_of_file;
-	int has_perms;
-	mode_t perms;
-#ifdef O_NONBLOCK
-	int is_blocking;
-	int has_timeout;
-	struct timeval timeout;
+#define PHP_DIO_API
 #endif
 
-	/* Serial options */
-	long data_rate;
-	int data_bits;
-	int stop_bits;
-	int parity;
-	int rtscts;
-#ifndef PHP_WIN32
-	struct termios oldtio;
+#ifdef PHP_WIN32
+#include "php_dio_win32.h"
+#define DIO_SPEED DWORD
+#else
+#include "php_dio_posix.h"
+#define DIO_SPEED speed_t
 #endif
-
-} php_dio_stream_data ;
 
 long dio_convert_to_long(zval *val);
 
-int dio_data_rate_to_define(long rate, speed_t *def);
+php_dio_stream_data * dio_create_stream_data(void);
 
-int dio_data_bits_to_define(int bits, int *def);
+void dio_init_stream_data(php_dio_stream_data *data);
 
-int dio_stop_bits_to_define(int stop_bits, int *def);
+void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data TSRMLS_DC);
 
-int dio_parity_to_define(int parity, int *def);
+void dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data TSRMLS_DC);
 
-int dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data);
+void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_stream_data *data);
 
-int dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data);
-
-int dio_stream_mode_to_flags(const char *mode);
+void dio_stream_context_get_serial_options(php_stream_context *context, php_dio_stream_data *data);
 
 size_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count);
 
 size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count);
+
+int dio_common_close(php_dio_stream_data *data);
+
+int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TSRMLS_DC);
+
+int dio_serial_init(php_dio_stream_data *data, DIO_SPEED data_rate_in, DIO_SPEED data_rate_out,
+		                   int data_bits, int stop_bits, int parity);
+
+int dio_serial_uninit(php_dio_stream_data *data);
+
+int dio_serial_purge(php_dio_stream_data *data);
+
+int dio_serial_open_stream(char *filename, char *mode, php_dio_stream_data *data TSRMLS_DC);
 
 #endif /* PHP_DIO_COMMON_H_ */
 
