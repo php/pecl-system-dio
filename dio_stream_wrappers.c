@@ -113,10 +113,13 @@ static int dio_stream_set_option(php_stream *stream, int option, int value, void
 					abstract->timeout_sec = 0;
 					abstract->timeout_usec = 0;
 					abstract->has_timeout = 0;
+					abstract->timed_out = 0;
 					(void) fcntl(fd, F_SETFL, flags | DIO_NONBLOCK);
 				}
+
+				return PHP_STREAM_OPTION_RETURN_OK;
 			} else {
-				return 0;
+				return PHP_STREAM_OPTION_RETURN_ERR;
 			}
 			break;
 
@@ -131,14 +134,22 @@ static int dio_stream_set_option(php_stream *stream, int option, int value, void
 
 			old_is_blocking = abstract->is_blocking;
 			abstract->is_blocking = value;
-			return old_is_blocking;
+			return old_is_blocking ? PHP_STREAM_OPTION_RETURN_OK : PHP_STREAM_OPTION_RETURN_ERR;
 #endif /* O_NONBLOCK */
 #endif /* PHP_WIN32 */
+
+		case PHP_STREAM_OPTION_META_DATA_API:
+#ifdef DIO_NONBLOCK
+			add_assoc_bool((zval *)ptrparam, "timed_out", abstract->timed_out);
+			add_assoc_bool((zval *)ptrparam, "blocked", abstract->is_blocking);
+#endif
+			add_assoc_bool((zval *)ptrparam, "eof", stream->eof);
+			return PHP_STREAM_OPTION_RETURN_OK;
 
 #if PHP_MAJOR_VERSION >= 5
 		case PHP_STREAM_OPTION_CHECK_LIVENESS:
 			stream->eof = abstract->end_of_file;
-			return stream->eof;
+			return stream->eof ? PHP_STREAM_OPTION_RETURN_OK : PHP_STREAM_OPTION_RETURN_ERR;
 #endif /* PHP_MAJOR_VERSION >= 5 */
 	}
 

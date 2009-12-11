@@ -39,6 +39,7 @@ void dio_init_stream_data(php_dio_stream_data *data) {
 	data->has_timeout = 0;
 	data->timeout_sec = 0;
 	data->timeout_usec = 0;
+	data->timed_out = 0;
 #endif
 	/* Serial options */
 	data->data_rate = 9600;

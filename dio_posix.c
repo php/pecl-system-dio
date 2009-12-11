@@ -270,7 +270,7 @@ static int dio_timeval_subtract(struct timeval *late, struct timeval *early, str
 
 	if ((late->tv_sec < early->tv_sec) ||
 		((late->tv_usec == early->tv_sec) && (late->tv_usec < early->tv_usec))) {
-		return 1;
+		return 0;
 	}
 
 	/* Handle any carry.  If later usec is smaller than earlier usec simple
@@ -286,7 +286,7 @@ static int dio_timeval_subtract(struct timeval *late, struct timeval *early, str
 	diff->tv_sec  = late->tv_sec  - early->tv_sec;
 	diff->tv_usec = late->tv_usec - early->tv_usec;
 
-	return 0;
+	return 1;
 }
 #endif
 
@@ -317,12 +317,15 @@ size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count)
 	}
 #ifdef DIO_NONBLOCK
 	else {
+		/* Clear timed out flag */
+		data->timed_out = 0;
+
 		/* The initial timeout value */
 		timeout.tv_sec  = data->timeout_sec;
 		timeout.tv_usec = data->timeout_usec;
 
 		do {
-			/* The symantics of select() are that you cannot guarantee
+			/* The semantics of select() are that you cannot guarantee
 			 * that the timeval structure passed in has not been changed by
 			 * the select call.  So you keep a copy. */
 			timeouttmp = timeout;
@@ -358,25 +361,31 @@ size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count)
 					 * data to read at an end of file, but still
 					 * just in case! */
 					data->end_of_file = 1;
+					break;
 				}
 			}
 
 			/* If not timed out and not end of file and not all data read
 			 * calculate how long it took us and loop if we still have time
 			 * out time left. */
-			if (count && ret) {
+			if (count) {
 				(void) gettimeofday(&after, NULL);
 
 				/* Diff the timevals */
 				(void) dio_timeval_subtract(&after, &before, &diff);
 
-				/* Now adjust the timeout.  If it errors we've run out
-				 * of time. */
-				if (dio_timeval_subtract(&timeout, &diff, &timeout)) {
+				/* Now adjust the timeout. */
+				if (!dio_timeval_subtract(&timeout, &diff, &timeout)) {
+					/* If it errors we've run out of time. */
+					data->timed_out = 1;
+					break;
+				} else if (!timeout.tv_sec && !(timeout.tv_usec / 1000)) {
+					/* Check for rounding issues (millisecond accuracy) */
+					data->timed_out = 1;
 					break;
 				}
 			}
-		} while (count && ret); /* Until time out or end of file or all data read. */
+		} while (count); /* Until time out or end of file or all data read. */
 
 		return total;
 	}

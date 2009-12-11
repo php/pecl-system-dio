@@ -34,6 +34,7 @@ typedef struct _php_dio_stream_data {
 	int has_timeout;
 	long timeout_sec;
 	long timeout_usec;
+	int timed_out;
 #endif
 	/* Serial options */
 	long data_rate;
