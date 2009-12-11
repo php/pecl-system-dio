@@ -95,7 +95,7 @@ static int dio_stream_set_option(php_stream *stream, int option, int value, void
 #ifdef PHP_WIN32
 	/* TODO: Fill me in! */
 #else
-#ifdef O_NONBLOCK
+#ifdef DIO_NONBLOCK
 		case PHP_STREAM_OPTION_READ_TIMEOUT:
 			if (ptrparam) {
 				struct timeval *tv = (struct timeval*)ptrparam;
@@ -108,12 +108,12 @@ static int dio_stream_set_option(php_stream *stream, int option, int value, void
 					abstract->timeout_sec = tv->tv_sec;
 					abstract->timeout_usec = tv->tv_usec;
 					abstract->has_timeout = -1;
-					(void) fnctl(fd, F_SETFL, flags & ~O_NONBLOCK);
+					(void) fnctl(fd, F_SETFL, flags & ~DIO_NONBLOCK);
 				} else {
 					abstract->timeout_sec = 0;
 					abstract->timeout_usec = 0;
 					abstract->has_timeout = 0;
-					(void) fnctl(fd, F_SETFL, flags | O_NONBLOCK);
+					(void) fnctl(fd, F_SETFL, flags | DIO_NONBLOCK);
 				}
 			} else {
 				return 0;
@@ -123,9 +123,9 @@ static int dio_stream_set_option(php_stream *stream, int option, int value, void
 		case PHP_STREAM_OPTION_BLOCKING:
 			flags = fcntl(fd, F_GETFL, 0);
 			if (value) {
-				flags &= ~O_NONBLOCK;
+				flags &= ~DIO_NONBLOCK;
 			} else {
-				flags |= O_NONBLOCK;
+				flags |= DIO_NONBLOCK;
 			}
 			(void) fcntl(fd, F_SETFL, flags);
 

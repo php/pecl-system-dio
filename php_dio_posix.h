@@ -31,11 +31,16 @@
 #include <fcntl.h>
 #include <termios.h>
 
+
 /**
  * Detect if we can support non blocking IO.
  */
 #ifdef O_NONBLOCK
-#define DIO_HAS_NONBLOCK
+#define DIO_NONBLOCK O_NONBLOCK
+#else
+#ifdef O_NDELAY
+#define DIO_NONBLOCK O_NDELAY
+#endif
 #endif
 
 /**

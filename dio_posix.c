@@ -259,7 +259,7 @@ size_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count
 }
 /* }}} */
 
-#ifdef DIO_HAS_NONBLOCK
+#ifdef DIO_NONBLOCK
 /* {{{ dio_timeval_subtract
  * Calculates the difference between two timevals returning the result in the
  * structure pointed to by diffptr.  Returns -1 as error if late time is
@@ -315,7 +315,7 @@ size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count)
 		} while ((errno == EINTR) && !data->end_of_file);
 		return 0;
 	}
-#ifdef DIO_HAS_NONBLOCK
+#ifdef DIO_NONBLOCK
 	else {
 		/* The initial timeout value */
 		timeout.tv_sec  = data->timeout_sec;
@@ -403,9 +403,9 @@ int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TS
 	php_dio_posix_stream_data *pdata = (php_dio_posix_stream_data*)data;
 	pdata->flags = dio_stream_mode_to_flags(mode);
 
-#ifdef DIO_HAS_NONBLOCK
+#ifdef DIO_NONBLOCK
 	if (!data->is_blocking || data->has_timeout) {
-		pdata->flags |= O_NONBLOCK;
+		pdata->flags |= DIO_NONBLOCK;
 	}
 #endif
 
@@ -460,8 +460,9 @@ int dio_serial_init(php_dio_stream_data *data, DIO_SPEED data_rate_in, DIO_SPEED
 		cfmakeraw(&tio);
 	}
 
-	tio.c_ispeed = data_rate_in;
-	tio.c_ospeed = data_rate_out;
+	cfsetispeed(&tio, data_rate_in);
+	cfsetospeed(&tio, data_rate_out);
+
 	tio.c_cflag &= ~CSIZE;
 	tio.c_cflag |= data_bits;
 	tio.c_cflag &= ~CSTOPB;
@@ -474,7 +475,7 @@ int dio_serial_init(php_dio_stream_data *data, DIO_SPEED data_rate_in, DIO_SPEED
 		tio.c_cflag |= CRTSCTS;
 	}
 
-	ret = tcsetattr(pdata->fd, TCSAFLUSH, &tio);
+	ret = tcsetattr(pdata->fd, TCSANOW, &tio);
 	if (ret < 0) {
 		return 0;
 	}
@@ -491,7 +492,7 @@ int dio_serial_uninit(php_dio_stream_data *data) {
 	int ret;
 
 	do {
-		ret = tcsetattr(pdata->fd, TCSAFLUSH, &(pdata->oldtio));
+		ret = tcsetattr(pdata->fd, TCSANOW, &(pdata->oldtio));
 	} while ((ret < 0) && (errno == EINTR));
 
 	return 1;
@@ -525,6 +526,7 @@ int dio_serial_purge(php_dio_stream_data *data) {
  * Opens the underlying stream.
  */
 int dio_serial_open_stream(char *filename, char *mode, php_dio_stream_data *data TSRMLS_DC) {
+	php_dio_posix_stream_data *pdata = (php_dio_posix_stream_data*)data;
 	speed_t rate_def;
 	int data_bits_def;
 	int stop_bits_def;
@@ -550,12 +552,17 @@ int dio_serial_open_stream(char *filename, char *mode, php_dio_stream_data *data
 		return 0;
 	}
 
+#ifdef O_NOCTTY
+	/* We don't want a controlling TTY */
+	pdata->flags |= O_NOCTTY;
+#endif
+
 	if (!dio_raw_open_stream(filename, mode, data TSRMLS_CC)) {
 		return 0;
 	}
 
 	if (!dio_serial_init(data, rate_def, rate_def, data_bits_def, stop_bits_def, parity_def)) {
-		close(((php_dio_posix_stream_data*)data)->fd);
+		close(pdata->fd);
 		return 0;
 	}
 

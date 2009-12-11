@@ -29,7 +29,7 @@ typedef struct _php_dio_stream_data {
 	int has_perms;
 	int perms;
 #endif
-#ifdef DIO_HAS_NONBLOCK
+#ifdef DIO_NONBLOCK
 	int is_blocking;
 	int has_timeout;
 	long timeout_sec;

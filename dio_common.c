@@ -34,7 +34,7 @@ void dio_init_stream_data(php_dio_stream_data *data) {
 	data->has_perms = 0;
 	data->perms = 0;
 #endif
-#ifdef DIO_HAS_NONBLOCK
+#ifdef DIO_NONBLOCK
 	data->is_blocking = 1;
 	data->has_timeout = 0;
 	data->timeout_sec = 0;
@@ -71,7 +71,7 @@ long dio_convert_to_long(zval *val) {
  * Retrieves the basic open option values from an associative array
  */
 void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data TSRMLS_DC) {
-#if defined(DIO_HAS_FILEPERMS) || defined(DIO_HAS_NONBLOCK)
+#if defined(DIO_HAS_FILEPERMS) || defined(DIO_NONBLOCK)
 	zval **tmpzval;
 	HashTable *opthash;
 
@@ -86,7 +86,7 @@ void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data 
 	}
 #endif
 
-#ifdef DIO_HAS_NONBLOCK
+#ifdef DIO_NONBLOCK
 	/* This sets the underlying stream to be blocking/non
 	   block (i.e. O_NONBLOCK) */
 	if (zend_hash_find(opthash, "is_blocking", sizeof("is_blocking"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
@@ -149,7 +149,7 @@ void dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data
  * Extracts the option values for dio.raw mode from a context
  */
 void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_stream_data *data) {
-#if defined(DIO_HAS_FILEPERMS) || defined(DIO_HAS_NONBLOCK)
+#if defined(DIO_HAS_FILEPERMS) || defined(DIO_NONBLOCK)
 	zval **tmpzval;
 #endif
 
@@ -161,7 +161,7 @@ void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_s
 	}
 #endif
 
-#ifdef DIO_HAS_NONBLOCK
+#ifdef DIO_NONBLOCK
 	/* This sets the underlying stream to be blocking/non
 	   block (i.e. O_NONBLOCK) */
 	if (php_stream_context_get_option(context, "dio", "is_blocking", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
