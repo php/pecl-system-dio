@@ -46,7 +46,7 @@ void dio_init_stream_data(php_dio_stream_data *data) {
 	data->data_bits = 8;
 	data->stop_bits = 1;
 	data->parity = 0;
-	data->rtscts = 1;
+	data->flow_control = 1;
 	data->canonical = 1;
 }
 /* }}} */
@@ -136,8 +136,8 @@ void dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data
 		data->parity = (int)dio_convert_to_long(*tmpzval);
 	}
 
-	if (zend_hash_find(opthash, "rtscts", sizeof("rtscts"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
-		data->rtscts = (int)(dio_convert_to_long(*tmpzval) ? 1 : 0);
+	if (zend_hash_find(opthash, "flow_control", sizeof("flow_control"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
+		data->flow_control = (int)(dio_convert_to_long(*tmpzval) ? 1 : 0);
 	}
 
 	if (zend_hash_find(opthash, "canonical", sizeof("canonical"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
@@ -208,8 +208,8 @@ void dio_stream_context_get_serial_options(php_stream_context *context, php_dio_
 		data->parity = (int)dio_convert_to_long(*tmpzval);
 	}
 
-	if (php_stream_context_get_option(context, "dio", "rtscts", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
-		data->rtscts = (int)(dio_convert_to_long(*tmpzval) ? 1 : 0);
+	if (php_stream_context_get_option(context, "dio", "flow_control", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
+		data->flow_control = (int)(dio_convert_to_long(*tmpzval) ? 1 : 0);
 	}
 
 	if (php_stream_context_get_option(context, "dio", "canonical", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {

@@ -41,7 +41,7 @@ typedef struct _php_dio_stream_data {
 	int data_bits;
 	int stop_bits;
 	int parity;
-	int rtscts;
+	int flow_control;
 	int canonical;
 } php_dio_stream_data ;
 

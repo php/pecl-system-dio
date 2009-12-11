@@ -268,8 +268,12 @@ size_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count
 static int dio_timeval_subtract(struct timeval *late, struct timeval *early, struct timeval *diff) {
 	struct timeval *tmp;
 
-	if ((late->tv_sec < early->tv_sec) ||
-		((late->tv_usec == early->tv_sec) && (late->tv_usec < early->tv_usec))) {
+	/* Handle negatives */
+	if (late->tv_sec < early->tv_sec) {
+		return 0;
+	}
+
+	if ((late->tv_sec == early->tv_sec) && (late->tv_usec < early->tv_usec)) {
 		return 0;
 	}
 
@@ -479,9 +483,13 @@ int dio_serial_init(php_dio_stream_data *data, DIO_SPEED data_rate_in, DIO_SPEED
 	tio.c_cflag &= ~(PARENB|PARODD);
 	tio.c_cflag |= parity;
 
-	tio.c_cflag &= ~CRTSCTS;
-	if (data->rtscts) {
+	tio.c_cflag &= ~(CLOCAL | CRTSCTS);
+	if (!data->flow_control) {
+		tio.c_cflag |= CLOCAL;
+#ifdef CRTSCTS
+	} else {
 		tio.c_cflag |= CRTSCTS;
+#endif
 	}
 
 	ret = tcsetattr(pdata->fd, TCSANOW, &tio);
