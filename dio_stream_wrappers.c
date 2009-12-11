@@ -192,12 +192,15 @@ static php_stream *dio_raw_fopen_wrapper(php_stream_wrapper *wrapper,
 	}
 
 	/* Try and open a raw stream. */
-	if (dio_raw_open_stream(filename, mode, data TSRMLS_CC)) {
-		stream = php_stream_alloc(&dio_raw_stream_ops, data, 0, mode);
-		if (!stream) {
-			(void) dio_common_close(data);
-			efree(data);
-		}
+	if (!dio_raw_open_stream(filename, mode, data TSRMLS_CC)) {
+		return NULL;
+	}
+
+	/* Create a PHP stream based on raw stream */
+	stream = php_stream_alloc(&dio_raw_stream_ops, data, 0, mode);
+	if (!stream) {
+		(void) dio_common_close(data);
+		efree(data);
 	}
 
 	return stream;
@@ -353,11 +356,13 @@ static php_stream *dio_serial_fopen_wrapper(php_stream_wrapper *wrapper,
 	}
 
 	/* Try and open a serial stream. */
-	if (dio_serial_open_stream(filename, mode, data TSRMLS_CC)) {
-		stream = php_stream_alloc(&dio_serial_stream_ops, data, 0, mode);
-		if (!stream) {
-			efree(data);
-		}
+	if (!dio_serial_open_stream(filename, mode, data TSRMLS_CC)) {
+		return NULL;
+	}
+
+	stream = php_stream_alloc(&dio_serial_stream_ops, data, 0, mode);
+	if (!stream) {
+		efree(data);
 	}
 
 	return stream;
