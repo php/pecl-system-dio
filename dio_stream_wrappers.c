@@ -108,12 +108,12 @@ static int dio_stream_set_option(php_stream *stream, int option, int value, void
 					abstract->timeout_sec = tv->tv_sec;
 					abstract->timeout_usec = tv->tv_usec;
 					abstract->has_timeout = -1;
-					(void) fnctl(fd, F_SETFL, flags & ~DIO_NONBLOCK);
+					(void) fcntl(fd, F_SETFL, flags & ~DIO_NONBLOCK);
 				} else {
 					abstract->timeout_sec = 0;
 					abstract->timeout_usec = 0;
 					abstract->has_timeout = 0;
-					(void) fnctl(fd, F_SETFL, flags | DIO_NONBLOCK);
+					(void) fcntl(fd, F_SETFL, flags | DIO_NONBLOCK);
 				}
 			} else {
 				return 0;
