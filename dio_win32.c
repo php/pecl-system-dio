@@ -160,16 +160,6 @@ int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TS
 }
 /* }}} */
 
-/* {{{ dio_serial_init
- * Initialises the serial settings storing the original settings before hand.
- */
-int dio_serial_init(php_dio_stream_data *data, DIO_SPEED data_rate_in, DIO_SPEED data_rate_out,
-		                   int data_bits, int stop_bits, int parity) {
-	return 0;
-}
-/* }}} */
-
-
 /* {{{ dio_serial_uninit
  * Restores the serial settings back to their original state.
  */

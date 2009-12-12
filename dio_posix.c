@@ -450,11 +450,31 @@ int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TS
 /* {{{ dio_serial_init
  * Initialises the serial settings storing the original settings before hand.
  */
-int dio_serial_init(php_dio_stream_data *data, DIO_SPEED data_rate_in, DIO_SPEED data_rate_out,
-		                   int data_bits, int stop_bits, int parity) {
+static int dio_serial_init(php_dio_stream_data *data TSRMLS_DC) {
 	php_dio_posix_stream_data *pdata = (php_dio_posix_stream_data*)data;
+	int ret = 0, data_bits_def, stop_bits_def, parity_def;
 	struct termios tio;
-	int ret = 0;
+	speed_t rate_def;
+
+	if (!dio_data_rate_to_define(data->data_rate, &rate_def)) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid data_rate value (%ld)", data->data_rate);
+		return 0;
+	}
+
+	if (!dio_data_bits_to_define(data->data_bits, &data_bits_def)) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid data_bits value (%d)", data->data_bits);
+		return 0;
+	}
+
+	if (!dio_stop_bits_to_define(data->stop_bits, &stop_bits_def)) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid stop_bits value (%d)", data->stop_bits);
+		return 0;
+	}
+
+	if (!dio_parity_to_define(data->parity, &parity_def)) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid parity value (%d)", data->parity);
+		return 0;
+	}
 
 	ret = tcgetattr(pdata->fd, &(pdata->oldtio));
 	if (ret < 0) {
@@ -473,15 +493,15 @@ int dio_serial_init(php_dio_stream_data *data, DIO_SPEED data_rate_in, DIO_SPEED
 		cfmakeraw(&tio);
 	}
 
-	cfsetispeed(&tio, data_rate_in);
-	cfsetospeed(&tio, data_rate_out);
+	cfsetispeed(&tio, rate_def);
+	cfsetospeed(&tio, rate_def);
 
 	tio.c_cflag &= ~CSIZE;
-	tio.c_cflag |= data_bits;
+	tio.c_cflag |= data_bits_def;
 	tio.c_cflag &= ~CSTOPB;
-	tio.c_cflag |= stop_bits;
+	tio.c_cflag |= stop_bits_def;
 	tio.c_cflag &= ~(PARENB|PARODD);
-	tio.c_cflag |= parity;
+	tio.c_cflag |= parity_def;
 
 	tio.c_cflag &= ~(CLOCAL | CRTSCTS);
 	if (!data->flow_control) {
@@ -544,30 +564,6 @@ int dio_serial_purge(php_dio_stream_data *data) {
  */
 int dio_serial_open_stream(char *filename, char *mode, php_dio_stream_data *data TSRMLS_DC) {
 	php_dio_posix_stream_data *pdata = (php_dio_posix_stream_data*)data;
-	speed_t rate_def;
-	int data_bits_def;
-	int stop_bits_def;
-	int parity_def;
-
-	if (!dio_data_rate_to_define(data->data_rate, &rate_def)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid data_rate value (%ld)", data->data_rate);
-		return 0;
-	}
-
-	if (!dio_data_bits_to_define(data->data_bits, &data_bits_def)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid data_bits value (%d)", data->data_bits);
-		return 0;
-	}
-
-	if (!dio_stop_bits_to_define(data->stop_bits, &stop_bits_def)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid stop_bits value (%d)", data->stop_bits);
-		return 0;
-	}
-
-	if (!dio_parity_to_define(data->parity, &parity_def)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid parity value (%d)", data->parity);
-		return 0;
-	}
 
 #ifdef O_NOCTTY
 	/* We don't want a controlling TTY */
@@ -578,7 +574,7 @@ int dio_serial_open_stream(char *filename, char *mode, php_dio_stream_data *data
 		return 0;
 	}
 
-	if (!dio_serial_init(data, rate_def, rate_def, data_bits_def, stop_bits_def, parity_def)) {
+	if (!dio_serial_init(data TSRMLS_CC)) {
 		close(pdata->fd);
 		return 0;
 	}

@@ -27,10 +27,8 @@
 
 #ifdef PHP_WIN32
 #include "php_dio_win32.h"
-#define DIO_SPEED DWORD
 #else
 #include "php_dio_posix.h"
-#define DIO_SPEED speed_t
 #endif
 
 long dio_convert_to_long(zval *val);
@@ -54,9 +52,6 @@ size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count)
 int dio_common_close(php_dio_stream_data *data);
 
 int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TSRMLS_DC);
-
-int dio_serial_init(php_dio_stream_data *data, DIO_SPEED data_rate_in, DIO_SPEED data_rate_out,
-		                   int data_bits, int stop_bits, int parity);
 
 int dio_serial_uninit(php_dio_stream_data *data);
 
