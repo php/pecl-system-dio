@@ -24,6 +24,104 @@
 
 #include "php_dio_common.h"
 
+/* {{{ dio_data_rate_to_define
+ * Converts a numeric data rate to a termios define
+ */
+static int dio_data_rate_to_define(long rate, DWORD *def) {
+	switch (rate) {
+		case 75:
+		case 110:
+		case 134:
+		case 150:
+		case 300:
+		case 600:
+		case 1200:
+		case 1800:
+		case 2400:
+		case 4800:
+		case 7200:
+		case 9600:
+		case 14400:
+		case 19200:
+		case 38400:
+		case 57600:
+		case 115200:
+		case 56000:
+		case 128000:
+			break;
+		default:
+			return 0;
+	}
+
+	*def = (DWORD)rate;
+	return 1;
+}
+/* }}} */
+
+
+/* {{{ dio_data_bits_to_define
+ * Converts a number of data bits to a termios define
+ */
+static int dio_data_bits_to_define(int data_bits, DWORD *def) {
+	switch (data_bits) {
+		case 8:
+		case 7:
+		case 6:
+		case 5:
+		case 4:
+			break;
+		default:
+			return 0;
+	}
+
+	*def = (DWORD)data_bits;
+	return 1;
+}
+/* }}} */
+
+/* {{{ dio_stop_bits_to_define
+ * Converts a number of stop bits to a termios define
+ */
+static int dio_stop_bits_to_define(int stop_bits, DWORD *def) {
+	DWORD val;
+
+	switch (stop_bits) {
+		case 1:
+			val = 0;
+			break;
+		case 2:
+			val = 2;
+			break;
+		case 3:
+			val = 1;
+			break;
+		default:
+			return 0;
+	}
+
+	*def = val;
+	return 1;
+}
+/* }}} */
+
+/* {{{ dio_parity_to_define
+ * Converts a parity type to a termios define
+ */
+static int dio_parity_to_define(int parity, DWORD *def) {
+	switch (parity) {
+		case 0:
+		case 1:
+		case 2:
+			break;
+		default:
+			return 0;
+	}
+
+	*def = (DWORD)parity;
+	return 1;
+}
+/* }}} */
+
 /* {{{ dio_create_stream_data
  * Creates an initialised stream data structure.  Free with efree().
  */
@@ -33,6 +131,9 @@ php_dio_stream_data * dio_create_stream_data(void) {
 	data->handle = INVALID_HANDLE_VALUE;
 	data->desired_access = 0;
 	data->creation_disposition = 0;
+	memset(&(data->olddcb), 0, sizeof(DCB));
+	data->olddcb.DCBlength = sizeof(DCB);
+	memset(&(data->oldcto), 0, sizeof(COMMTIMEOUTS));
 
 	return (php_dio_stream_data *)data;
 }
@@ -42,10 +143,10 @@ php_dio_stream_data * dio_create_stream_data(void) {
  * Writes count chars from the buffer to the stream described by the stream data.
  */
 size_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count) {
-	char *ptr = (char*)buf;
+	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
 	DWORD total = 0;
 
-	if (WriteFile(((php_dio_win32_stream_data*)data)->handle, ptr, (DWORD)count, &total, NULL)) {
+	if (WriteFile(wdata->handle, buf, (DWORD)count, &total, NULL)) {
 		return (size_t)total;
 	}
 
@@ -58,11 +159,9 @@ size_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count
  */
 size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count) {
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
-	char *ptr = (char*)buf;
-	DWORD total = 0;
-	DWORD err;
+	DWORD err, total = 0;
 
-	if (ReadFile(wdata->handle, ptr, (DWORD)count, &total, NULL)) {
+	if (ReadFile(wdata->handle, buf, (DWORD)count, &total, NULL)) {
 		if (!total) {
 			data->end_of_file = 1;
 		}
@@ -98,10 +197,9 @@ int dio_common_close(php_dio_stream_data *data) {
  */
 int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TSRMLS_DC) {
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
-	int ch = 0;
 	DWORD err;
 
-	switch(mode[ch++]) {
+	switch(*mode) {
 		case 'r':
 			wdata->creation_disposition = OPEN_EXISTING;
 			break;
@@ -115,17 +213,18 @@ int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TS
 			wdata->creation_disposition = CREATE_NEW;
 			break;
 	}
+	mode ++;
 
-	if (mode[ch] != '+') {
-		mode[ch++];
+	if (*mode && (*mode != '+')) {
+		mode++;
 	}
 
-	if (mode[ch] == '+') {
+	if (*mode && (*mode == '+')) {
 		wdata->desired_access = GENERIC_READ | GENERIC_WRITE;
-	} else if (OPEN_EXISTING != wdata->creation_disposition) {
-		wdata->desired_access = GENERIC_WRITE;
-	} else {
+	} else if (OPEN_EXISTING == wdata->creation_disposition) {
 		wdata->desired_access = GENERIC_READ;
+	} else {
+		wdata->desired_access = GENERIC_WRITE;
 	}
 
 	wdata->handle = CreateFile(filename, wdata->desired_access, 0,
@@ -144,6 +243,7 @@ int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TS
 					wdata->handle = CreateFile(filename, wdata->desired_access, 0,
 								NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 					if (INVALID_HANDLE_VALUE == wdata->handle) {
+						err = GetLastError();
 						return 0;
 					}
 				} else {
@@ -160,10 +260,89 @@ int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TS
 }
 /* }}} */
 
+/* {{{ dio_serial_init
+ * Initialises the serial port
+ */
+static int dio_serial_init(php_dio_stream_data *data TSRMLS_DC) {
+	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
+	DWORD err, rate_def, data_bits_def, stop_bits_def, parity_def;
+	DCB dcb;
+
+	if (!dio_data_rate_to_define(data->data_rate, &rate_def)) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid data_rate value (%d) (%d)", data->data_rate, __LINE__);
+		return 0;
+	}
+
+	if (!dio_data_bits_to_define(data->data_bits, &data_bits_def)) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid data_bits value (%d)", data->data_bits);
+		return 0;
+	}
+
+	if (!dio_stop_bits_to_define(data->stop_bits, &stop_bits_def)) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid stop_bits value (%d)", data->stop_bits);
+		return 0;
+	}
+
+	if (!dio_parity_to_define(data->parity, &parity_def)) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid parity value (%d)", data->parity);
+		return 0;
+	}
+
+	if (!GetCommState(wdata->handle, &(wdata->olddcb))) {
+		err = GetLastError();
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "GetCommState() failed! (%d)", err);
+		return 0;
+	}
+
+	/* Init the DCB structure */
+	memset(&dcb, 0, sizeof(DCB));
+	dcb.DCBlength = sizeof(DCB);
+
+	/* Set the communication parameters */
+	dcb.fBinary  = 1;
+	dcb.BaudRate = rate_def;
+	dcb.ByteSize = (BYTE)data_bits_def;
+	dcb.StopBits = (BYTE)stop_bits_def;
+	dcb.Parity   = (BYTE)parity_def;
+
+	/* Set the control line parameters */
+	dcb.fDtrControl       = DTR_CONTROL_DISABLE;
+	dcb.fDsrSensitivity   = FALSE;
+	dcb.fOutxDsrFlow      = FALSE;
+	dcb.fTXContinueOnXoff = FALSE;
+	dcb.fOutX             = FALSE;
+	dcb.fInX              = FALSE;
+	dcb.fErrorChar        = FALSE;
+	dcb.fNull             = FALSE;
+	dcb.fAbortOnError     = FALSE;
+
+	/* Hardware flow control */
+	if (data->flow_control) {
+		dcb.fOutxCtsFlow = TRUE;
+		dcb.fRtsControl  = RTS_CONTROL_HANDSHAKE;
+	} else {
+		dcb.fOutxCtsFlow = FALSE;
+		dcb.fRtsControl  = RTS_CONTROL_DISABLE;
+	}
+
+	if (!SetCommState(wdata->handle, &dcb)) {
+		return 0;
+	}
+
+	return 1;
+}
+/* }}} */
+
+
 /* {{{ dio_serial_uninit
  * Restores the serial settings back to their original state.
  */
 int dio_serial_uninit(php_dio_stream_data *data) {
+	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
+
+	if (!SetCommState(wdata->handle, &(wdata->olddcb))) {
+		return 0;
+	}
 
 	return 1;
 }
@@ -176,7 +355,7 @@ int dio_serial_purge(php_dio_stream_data *data) {
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
 	BOOL ret;
 
-	if ((data->desired_access & (GENERIC_READ|GENERIC_WRITE)) == (GENERIC_READ|GENERIC_WRITE)) {
+	if ((wdata->desired_access & (GENERIC_READ|GENERIC_WRITE)) == (GENERIC_READ|GENERIC_WRITE)) {
 		ret = PurgeComm(wdata->handle, PURGE_RXCLEAR|PURGE_TXCLEAR);
 	} else if ((wdata->desired_access & GENERIC_WRITE) == GENERIC_WRITE) {
 		ret = PurgeComm(wdata->handle, PURGE_TXCLEAR);
@@ -200,18 +379,36 @@ int dio_serial_open_stream(char *filename, char *mode, php_dio_stream_data *data
 		return 0;
 	}
 
-	if (!data->is_blocking) {
+	if (!GetCommTimeouts(wdata->handle, &(wdata->oldcto))) {
+		err = GetLastError();
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "SetCommTimeouts() failed! (%d) Not a comm port?", err);
+		CloseHandle(wdata->handle);
+		return 0;
+	}
+
+	/* If we're not blocking but don't have a timeout
+	   set to return immediately */
+	if (!data->is_blocking && !data->has_timeout) {
 		cto.ReadIntervalTimeout = MAXDWORD;
-		if (data->has_timeout) {
-			cto.ReadTotalTimeoutMultiplier = MAXDWORD;
-			cto.ReadTotalTimeoutConstant =
-					(data->timeout_usec / 1000) + (data->timeout_sec * 1000);
-		}
+	}
+	
+	/* If we have a timeout ignore the blocking and set
+	   the total time in which to read the data */
+	if (data->has_timeout) {
+		cto.ReadIntervalTimeout = MAXDWORD;
+		cto.ReadTotalTimeoutMultiplier  = MAXDWORD;
+		cto.ReadTotalTimeoutConstant = (data->timeout_usec / 1000) + 
+			(data->timeout_sec * 1000);
 	}
 
 	if (!SetCommTimeouts(wdata->handle, &cto)) {
-		err = GetLastError();
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "SetCommTimeouts() failed! (%d)", err);
+		CloseHandle(wdata->handle);
+		return 0;
+	}
+
+	if (!dio_serial_init(data TSRMLS_CC)) {
+		CloseHandle(wdata->handle);
+		return 0;
 	}
 
 	return 1;

@@ -4,16 +4,15 @@ Test dio raw stream set blocking
 <?php if (!extension_loaded("dio")) print "skip"; ?>
 --FILE--
 <?php 
-	$ostype = "windows"; 
-	if (shell_exec("which uname")) {
-		$ostype = shell_exec("uname");
-	}
-	if ($ostype != "windows") {
+	$iswin = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN'); 
+
+	if (!$iswin) {
 		$filename = "dio.raw:///dev/null";
 	} else {
-		$filename = "dio.raw://\\Device\\Null";
+		$filename = "dio.raw://c:\\ntdetect.com";
 	}
-	$f = fopen($filename, "r+");
+
+	$f = fopen($filename, "r");
 	if ($f) {
 		if (stream_set_blocking($f, 1)) {
 			echo "Set blocking passed";

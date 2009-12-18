@@ -4,15 +4,14 @@ Test dio raw stream close
 <?php if (!extension_loaded("dio")) print "skip"; ?>
 --FILE--
 <?php 
-	$ostype = "windows"; 
-	if (shell_exec("which uname")) {
-		$ostype = shell_exec("uname");
-	}
-	if ($ostype != "windows") {
+	$iswin = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN'); 
+
+	if (!$iswin) {
 		$filename = "dio.raw:///dev/null";
 	} else {
-		$filename = "dio.raw://\\Device\\Null";
+		$filename = "dio.raw://NUL";
 	}
+
 	$f = fopen($filename, "r+");
 	if ($f) {
 		if (fclose($f)) {

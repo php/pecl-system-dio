@@ -41,9 +41,9 @@ void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data 
 
 void dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data TSRMLS_DC);
 
-void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_stream_data *data);
+void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_stream_data *data TSRMLS_DC);
 
-void dio_stream_context_get_serial_options(php_stream_context *context, php_dio_stream_data *data);
+void dio_stream_context_get_serial_options(php_stream_context *context, php_dio_stream_data *data TSRMLS_DC);
 
 size_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count);
 

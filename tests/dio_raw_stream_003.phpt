@@ -4,16 +4,15 @@ Test dio raw read
 <?php if (!extension_loaded("dio")) print "skip"; ?>
 --FILE--
 <?php 
-	$ostype = "windows"; 
-	if (shell_exec("which uname")) {
-		$ostype = shell_exec("uname");
-	}
-	if ($ostype != "windows") {
+	$iswin = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN'); 
+
+	if (!$iswin) {
 		$filename = "dio.raw:///dev/zero";
 	} else {
-		$filename = "dio.raw://\\Device\\Null";
+		$filename = "dio.raw://c:\\ntdetect.com";
 	}
-	$f = fopen($filename, "r+");
+
+	$f = fopen($filename, "r");
 	if ($f) {
 		$data = fread($f, 2048);
 		if ($data && (strlen($data) == 2048)) {

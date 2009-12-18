@@ -47,7 +47,11 @@ static size_t dio_stream_write(php_stream *stream, const char *buf, size_t count
  */
 static size_t dio_stream_read(php_stream *stream, char *buf, size_t count TSRMLS_DC)
 {
-	return dio_common_read((php_dio_stream_data*)stream->abstract, buf, count);
+	php_dio_stream_data* data = (php_dio_stream_data*)stream->abstract;
+	size_t bytes = dio_common_read(data, buf, count);
+	stream->eof = data->end_of_file;
+
+	return bytes;
 }
 /* }}} */
 
@@ -149,7 +153,7 @@ static int dio_stream_set_option(php_stream *stream, int option, int value, void
 #if PHP_MAJOR_VERSION >= 5
 		case PHP_STREAM_OPTION_CHECK_LIVENESS:
 			stream->eof = abstract->end_of_file;
-			return stream->eof ? PHP_STREAM_OPTION_RETURN_OK : PHP_STREAM_OPTION_RETURN_ERR;
+			return PHP_STREAM_OPTION_RETURN_OK;
 #endif /* PHP_MAJOR_VERSION >= 5 */
 	}
 
@@ -199,7 +203,7 @@ static php_stream *dio_raw_fopen_wrapper(php_stream_wrapper *wrapper,
 
 	/* Parse the context. */
 	if (context) {
-		dio_stream_context_get_basic_options(context, data);
+		dio_stream_context_get_basic_options(context, data TSRMLS_CC);
 	}
 
 	/* Try and open a raw stream. */
@@ -252,7 +256,6 @@ PHP_FUNCTION(dio_raw) {
 
 	/* Check the third argument is an array. */
 	if (options && (Z_TYPE_P(options) != IS_ARRAY)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,"dio_raw, the third argument should be an array of options");
 		RETURN_FALSE;
 	}
 
@@ -362,8 +365,8 @@ static php_stream *dio_serial_fopen_wrapper(php_stream_wrapper *wrapper,
 
 	/* Parse the context. */
 	if (context) {
-		dio_stream_context_get_basic_options(context, data);
-		dio_stream_context_get_serial_options(context, data);
+		dio_stream_context_get_basic_options(context, data TSRMLS_CC);
+		dio_stream_context_get_serial_options(context, data TSRMLS_CC);
 	}
 
 	/* Try and open a serial stream. */

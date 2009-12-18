@@ -591,5 +591,3 @@ int dio_serial_open_stream(char *filename, char *mode, php_dio_stream_data *data
  * vim600: fdm=marker
  * vim: sw=4 ts=4 noet
  */
-
-

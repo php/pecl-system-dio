@@ -22,7 +22,7 @@
 #include <windows.h>
 
 /* Windows platform can do non blocking. */
-#define DIO_HAS_NONBLOCK
+#define DIO_NONBLOCK
 
 #include "php_dio_common_data.h"
 
@@ -31,6 +31,8 @@ typedef struct _php_dio_win32_stream_data {
 	HANDLE handle;
 	DWORD desired_access;
 	DWORD creation_disposition;
+	DCB olddcb;
+	COMMTIMEOUTS oldcto;
 } php_dio_win32_stream_data ;
 
 #endif /* PHP_DIO_WIN32_H_ */
