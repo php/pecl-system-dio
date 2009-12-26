@@ -1,24 +1,45 @@
 --TEST--
-Test dio raw stream end of file
+Test dio eof read
 --SKIPIF--
-<?php if (!extension_loaded("dio")) print "skip"; ?>
+<?php
+	if (!extension_loaded('dio')) print 'skip';
+?>
 --FILE--
 <?php 
-	$iswin = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN'); 
+	// Create a temp file with some content to read
 
-	if (!$iswin) {
-		$filename = "dio.raw:///dev/null";
+	// Create the temp file name
+	if (!function_exists('sys_get_temp_dir')) {
+		if (!($tmpdir = getenv('TEMP'))) {
+			$tmpdir = '';
+		}
 	} else {
-		$filename = "dio.raw://c:\\ntdetect.com";
+		$tmpdir = sys_get_temp_dir();
+	}
+	$filename = tempnam($tmpdir, 'dio_raw_stream_005.tmp');
+			
+	// Create the temp file
+	$tf = fopen($filename, "w");
+	if ($tf) {
+		fclose($tf);
+	} else {
+		echo "Can\'t create temp file";
 	}
 
-	$f = fopen($filename, "r");
+	$f = fopen('dio.raw://' . $filename, "r");
 	if ($f) {
-		if (!feof($f)) {
-			echo "Raw end of file passed";
+		$data = fread($f, 2048);
+		if (feof($f)) {
+			echo "Raw feof passed";
+		} else {
+			echo "Raw feof failed";
 		}
 		fclose($f);
+	} else {
+		echo "Raw open failed";
 	}
+
+	unlink($filename);
 ?>
 --EXPECT--
-Raw end of file passed
+Raw feof passed

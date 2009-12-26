@@ -1,5 +1,5 @@
 --TEST--
-Test dio raw read
+Test dio raw stream write
 --SKIPIF--
 <?php if (!extension_loaded("dio")) print "skip"; ?>
 --FILE--
@@ -7,19 +7,23 @@ Test dio raw read
 	$iswin = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN'); 
 
 	if (!$iswin) {
-		$filename = "dio.raw:///dev/zero";
+		$filename = "dio.raw:///dev/null";
 	} else {
-		$filename = "dio.raw://c:\\ntdetect.com";
+		$filename = "dio.raw://NUL";
 	}
 
-	$f = fopen($filename, "r");
+	$f = fopen($filename, "r+");
 	if ($f) {
-		$data = fread($f, 2048);
-		if ($data && (strlen($data) == 2048)) {
-			echo "Raw read passed";
+		$data = str_repeat("+", 2048);
+		if (fwrite($f, $data)) {
+			echo "Raw write passed";
+		} else {
+			echo "Raw write failed";
 		}
 		fclose($f);
+	} else {
+		echo "Raw open failed";
 	}
 ?>
 --EXPECT--
-Raw read passed
+Raw write passed

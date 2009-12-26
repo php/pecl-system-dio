@@ -4,7 +4,15 @@ Test dio legacy open
 <?php if (!extension_loaded("dio")) print "skip"; ?>
 --FILE--
 <?php 
-	$f = dio_open("/dev/null",O_RDONLY);
+	$iswin = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN'); 
+
+	if (!$iswin) {
+		$filename = "/dev/null";
+	} else {
+		$filename = "NUL";
+	}
+	
+	$f = dio_open($filename,O_RDONLY);
 	if ($f) {
 		echo "Legacy open passed";
 	} else {

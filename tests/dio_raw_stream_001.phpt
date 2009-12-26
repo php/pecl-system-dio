@@ -16,6 +16,8 @@ Test dio raw stream open
 	if ($f) {
 		echo "Raw open passed";
 		fclose($f);
+	} else {
+		echo "Raw open failed";
 	}
 ?>
 --EXPECT--
