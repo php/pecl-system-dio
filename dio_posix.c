@@ -489,7 +489,11 @@ static int dio_serial_init(php_dio_stream_data *data TSRMLS_DC) {
 		return 0;
 	}
 
-	if (!data->canonical) {
+	if (data->canonical) {
+		tio.c_iflag = IGNPAR | ICRNL;
+		tio.c_oflag = 0;
+		tio.c_lflag = ICANON;
+	} else {
 		cfmakeraw(&tio);
 	}
 

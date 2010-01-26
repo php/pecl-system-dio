@@ -140,7 +140,7 @@ void dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data
 		data->flow_control = (int)(dio_convert_to_long(*tmpzval) ? 1 : 0);
 	}
 
-	if (zend_hash_find(opthash, "canonical", sizeof("canonical"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
+	if (zend_hash_find(opthash, "is_canonical", sizeof("is_canonical"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 		data->canonical = (int)(dio_convert_to_long(*tmpzval) ? 1 : 0);
 	}
 }
@@ -212,7 +212,7 @@ void dio_stream_context_get_serial_options(php_stream_context *context, php_dio_
 		data->flow_control = (int)(dio_convert_to_long(*tmpzval) ? 1 : 0);
 	}
 
-	if (php_stream_context_get_option(context, "dio", "canonical", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
+	if (php_stream_context_get_option(context, "dio", "is_canonical", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 		data->canonical = (int)(dio_convert_to_long(*tmpzval) ? 1 : 0);
 	}
 }
