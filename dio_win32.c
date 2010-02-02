@@ -127,13 +127,12 @@ static int dio_parity_to_define(int parity, DWORD *def) {
  */
 php_dio_stream_data * dio_create_stream_data(void) {
 	php_dio_win32_stream_data * data = emalloc(sizeof(php_dio_win32_stream_data));
+	memset(data, 0, sizeof(php_dio_win32_stream_data));
 	dio_init_stream_data(&(data->common));
 	data->handle = INVALID_HANDLE_VALUE;
 	data->desired_access = 0;
 	data->creation_disposition = 0;
-	memset(&(data->olddcb), 0, sizeof(DCB));
 	data->olddcb.DCBlength = sizeof(DCB);
-	memset(&(data->oldcto), 0, sizeof(COMMTIMEOUTS));
 
 	return (php_dio_stream_data *)data;
 }
@@ -154,27 +153,170 @@ size_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count
 }
 /* }}} */
 
+/* {{{ dio_buffer_read
+ * Reads any available chars from the canonical buffer.
+ */
+static size_t dio_buffer_read(php_dio_win32_stream_data *wdata, const char *buf, size_t count) {
+	php_dio_win32_canon_data *canon_data = wdata->canon_data;
+	size_t total = 0;
+
+	/* Read always follows write.  I.e. if read ptr > write ptr buffer has
+	   wrapped and so we need to copy two blocks of data. */
+	if (canon_data->read_pos > canon_data->write_pos) {
+
+		/* Check we actually need to copy both blocks */
+		if ((canon_data->size - canon_data->read_pos) > count) {
+
+			/* No we don't.  Just copy as much as we were asked for. */
+			memcpy((char*)buf, 
+				   &(canon_data->buf[canon_data->read_pos]), 
+				   count);
+			/* Update the read pointer. */
+			canon_data->read_pos += count;
+
+			/* Return the amount read. */
+			return count;
+		} else {
+
+			/* We need to copy both blocks so copy data up to the end of 
+			   the buffer. */
+			total = canon_data->size - canon_data->read_pos;
+			memcpy((char*)buf, 
+				   &(canon_data->buf[canon_data->read_pos]), 
+				   total);
+			canon_data->read_pos = 0;
+			count -= total;
+
+			/* Now copy the data from the start of the buffer either up
+			   count or the number of bytes in the buffer. */
+
+			if (canon_data->write_pos > count) {
+				memcpy((char*)buf, canon_data->buf, count);
+				canon_data->read_pos = count;
+				total += count;
+
+				return total;
+			} else {
+				memcpy((char*)buf, canon_data->buf, canon_data->write_pos);
+				canon_data->read_pos = canon_data->write_pos;
+				total += canon_data->write_pos;
+
+				return total;
+			}
+		}
+
+	/* Else if write follows read.  This is a simpler case.  We just copy 
+	   either all the data buffered or count, which ever is smaller. */
+	} else if (canon_data->write_pos > canon_data->read_pos) {
+		if ((canon_data->write_pos - canon_data->read_pos) > count) {
+			memcpy((char*)buf, 
+				   &(canon_data->buf[canon_data->read_pos]), 
+				   count);
+			canon_data->read_pos += count;
+
+			return count;
+		} else {
+			total = canon_data->write_pos - canon_data->read_pos;
+			memcpy((char*)buf, 
+				   &(canon_data->buf[canon_data->read_pos]), 
+				   total);
+			canon_data->read_pos += total;
+
+			return total;
+		}
+	}
+
+	/* Else we need to read more data from the data port. */
+	return 0;
+}
+
+/* {{{ dio_com_read
+ * Read chars from the data port.
+ */
+static size_t dio_com_read(php_dio_stream_data *data, const char *buf, size_t count) {
+	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
+	DWORD err, total = 0;
+
+	if (ReadFile(wdata->handle, (void*)buf, (DWORD)count, &total, NULL)) {
+
+		if (total) {
+			return (size_t)total;
+		}
+
+		data->end_of_file = 1;
+	}
+
+	if (!data->end_of_file) {
+		err = GetLastError();
+
+		if (ERROR_HANDLE_EOF == err) {
+			data->end_of_file = 1;
+		}
+	}
+
+	return 0;
+}
+
+/* {{{ dio_canonical_read
+ * Reads chars from the input stream until the internal buffer is full or a new
+ * line is reached.
+ */
+static size_t dio_canonical_read(php_dio_win32_stream_data *wdata, const char *buf, size_t count) {
+	php_dio_win32_canon_data *canon_data = wdata->canon_data;
+	size_t total = 0;
+	char ch;
+
+	/* See if there's any buffered data and copy it. */
+	total = dio_buffer_read(wdata, buf, count);
+	if (total) {
+		return total;
+	}
+
+	/* Need to read more data from the data port.  Buffer should be empty(er)
+	   by now. */
+	do {
+		/* Is the buffer full? */
+		if (((canon_data->write_pos + 1) % canon_data->size) == 
+			canon_data->read_pos) {
+			break;
+		}
+
+		/* Read a byte from the input checking for EOF. */
+		if (!dio_com_read((php_dio_stream_data*)wdata, &ch, 1)) {
+			break;
+		}
+
+		/* Translate CR to newlines (same as ICRNL in POSIX) */
+		ch = (ch != '\r') ? ch : '\n';
+
+		/* We read a character!  So buffer it. */
+		canon_data->buf[canon_data->write_pos++] = ch;
+		if (canon_data->write_pos >= canon_data->size) {
+			canon_data->write_pos = 0;
+		}
+
+		/* End of line/input (^D)? */
+	} while ((ch != '\n') && (ch != 0x04));
+
+	return dio_buffer_read(wdata, buf, count);
+}
+/* }}} */
+
 /* {{{ dio_common_read
  * Reads count chars to the buffer to the stream described by the stream data.
  */
 size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count) {
-	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
-	DWORD err, total = 0;
 
-	if (ReadFile(wdata->handle, buf, (DWORD)count, &total, NULL)) {
-		if (!total) {
-			data->end_of_file = 1;
-		}
-		return (size_t)total;
+	/* You ask for no bytes you'll get none :-) */
+	if (!count) {
+		return 0;
 	}
 
-	err = GetLastError();
-
-	if (ERROR_HANDLE_EOF == err) {
-		data->end_of_file = 1;
+	if (data->canonical) {
+		return dio_canonical_read((php_dio_win32_stream_data*)data, buf, count);
+	} else {
+		return dio_com_read(data, buf, count);
 	}
-
-	return 0;
 }
 /* }}} */
 
@@ -183,6 +325,10 @@ size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count)
  */
 int dio_common_close(php_dio_stream_data *data) {
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
+
+	if (data->canonical) {
+		efree(wdata->canon_data);
+	}
 
 	if (!CloseHandle(wdata->handle)) {
 		return 0;
@@ -254,6 +400,13 @@ int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TS
 			default:
 				return 0;
 		}
+	}
+
+	/* If canonical allocate the canonical buffer. */
+	if (data->canonical) {
+		wdata->canon_data = emalloc(sizeof(php_dio_win32_canon_data));
+		memset(wdata->canon_data, 0, sizeof(php_dio_win32_canon_data));
+		wdata->canon_data->size = DIO_WIN32_CANON_BUF_SIZE;
 	}
 
 	return 1;
@@ -355,6 +508,13 @@ int dio_serial_purge(php_dio_stream_data *data) {
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
 	BOOL ret;
 
+	/* Purge the canonical buffer if required */
+	if (data->canonical && ((wdata->desired_access & GENERIC_READ) == GENERIC_READ)) {
+		wdata->canon_data->read_pos  = 0;
+		wdata->canon_data->write_pos = 0;
+	}
+
+	/* Purge the com port */
 	if ((wdata->desired_access & (GENERIC_READ|GENERIC_WRITE)) == (GENERIC_READ|GENERIC_WRITE)) {
 		ret = PurgeComm(wdata->handle, PURGE_RXCLEAR|PURGE_TXCLEAR);
 	} else if ((wdata->desired_access & GENERIC_WRITE) == GENERIC_WRITE) {

@@ -26,6 +26,19 @@
 
 #include "php_dio_common_data.h"
 
+#define DIO_WIN32_CANON_BUF_SIZE 8192
+
+/* This is the buffer information when reading in canonical mode.  Data is 
+   read right up to either buffer being full or a newline being read.  Excess
+   data will be retained in the buffer until the next read. */
+typedef struct _php_dio_win32_canon_data {
+	size_t size;
+	size_t read_pos;
+	size_t write_pos;
+	char buf[DIO_WIN32_CANON_BUF_SIZE];
+
+} php_dio_win32_canon_data;
+
 typedef struct _php_dio_win32_stream_data {
 	php_dio_stream_data common;
 	HANDLE handle;
@@ -33,6 +46,8 @@ typedef struct _php_dio_win32_stream_data {
 	DWORD creation_disposition;
 	DCB olddcb;
 	COMMTIMEOUTS oldcto;
+	php_dio_win32_canon_data *canon_data;
+
 } php_dio_win32_stream_data ;
 
 #endif /* PHP_DIO_WIN32_H_ */
