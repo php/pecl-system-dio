@@ -6,14 +6,17 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <name>dio</name>
  <channel>pecl.php.net</channel>
  <summary>Direct I/O functions</summary>
- <description>PHP supports the direct io functions as described in the 
+ <description>
+PHP supports the direct io functions as described in the 
 Posix Standard (Section 6) for performing I/O functions at 
 a lower level than the C-Language stream I/O functions 
-(fopen(), fread(),..). The use of the DIO functions should 
+(fopen(), fread(),..). 
+
+DIO provides functions and stream wrappers which provide raw and
+serial low level IO support.  The use of the DIO functions should 
 be considered only when direct control of a device is needed. 
 In all other cases, the standard filesystem functions are 
 more than adequate.
- 
  </description>
  <lead>
   <name>Melanie Rhianna Lewis</name>
@@ -21,11 +24,11 @@ more than adequate.
   <email>cyberspice@php.net</email>
   <active>yes</active>
  </lead>
- <date>2009-11-05</date>
- <time>12:56:16</time>
+ <date>2010-02-02</date>
+ <time>17:41:00</time>
  <version>
-  <release>0.0.3</release>
-  <api>0.0.3</api>
+  <release>0.0.4</release>
+  <api>0.0.4</api>
  </version>
  <stability>
   <release>beta</release>
@@ -49,6 +52,7 @@ Packaged so it can be used.
    <file name="dio_stream_wrappers.c" role="src" />
    <file name="php_dio.h" role="src" />
    <file name="php_dio_common.h" role="src" />
+   <file name="php_dio_common_data.h" role="src" />
    <file name="php_dio_posix.h" role="src" />
    <file name="php_dio_win32.h" role="src" />
    <file name="php_dio_stream_wrappers.h" role="src" />
@@ -57,7 +61,7 @@ Packaged so it can be used.
  <dependencies>
   <required>
    <php>
-    <min>5</min>
+    <min>5.2</min>
    </php>
    <pearinstaller>
     <min>1.4.0b1</min>
