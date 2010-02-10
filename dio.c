@@ -591,7 +591,7 @@ PHP_FUNCTION(dio_close)
 /* {{{ dio_init_legacy_defines
  * Initialises the legacy PHP defines
  */
-static void dio_init_legacy_defines(int module_number) {
+static void dio_init_legacy_defines(int module_number TSRMLS_DC) {
 	RDIOC(O_RDONLY);
 	RDIOC(O_WRONLY);
 	RDIOC(O_RDWR);
@@ -763,7 +763,7 @@ PHP_MINIT_FUNCTION(dio)
 	/* Legacy resource destructor. */
 	le_fd = zend_register_list_destructors_ex(_dio_close_fd, NULL, le_fd_name, module_number);
 
-	dio_init_legacy_defines(module_number);
+	dio_init_legacy_defines(module_number TSRMLS_CC);
 
 	/* Register the stream wrappers */
 	return (php_register_url_stream_wrapper(DIO_RAW_STREAM_NAME, &php_dio_raw_stream_wrapper TSRMLS_CC) == SUCCESS &&
