@@ -25,9 +25,9 @@ more than adequate.
   <active>yes</active>
  </lead>
  <date>2010-02-10</date>
- <time>12:10:00</time>
+ <time>18:32:00</time>
  <version>
-  <release>0.0.4RC4</release>
+  <release>0.0.4</release>
   <api>0.0.4</api>
  </version>
  <stability>
@@ -36,8 +36,12 @@ more than adequate.
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-package.xml added to support installation using pear installer
-Packaged so it can be used.
+Added stream wrapper support.  The dio.raw and dio.serial streams support
+raw and serial streams respectively on both POSIX and Win32.  Streams can
+be blocking, non-blocking and reads can have timeouts.  
+
+The dio_open(), dio_read() etc. API is now considered legacy and streams
+should be used where possible.
  </notes>
  <contents>
   <dir name="/">
@@ -78,3 +82,4 @@ Packaged so it can be used.
  <providesextension>dio</providesextension>
  <extsrcrelease />
 </package>
+
