@@ -29,6 +29,7 @@
  * Initialises the command parts of the stream data.
  */
 void dio_init_stream_data(php_dio_stream_data *data) {
+	data->stream_type = DIO_STREAM_TYPE_NONE;
 	data->end_of_file = 0;
 #ifdef DIO_HAS_FILEPERMS
 	data->has_perms = 0;

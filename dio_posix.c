@@ -409,6 +409,64 @@ int dio_common_close(php_dio_stream_data *data) {
 }
 /* }}} */
 
+/* {{{ dio_common_set_option
+ * Sets/gets stream options
+ */
+int dio_common_set_option(php_dio_stream_data *data, int option, int value, void *ptrparam) {
+	int fd = ((php_dio_posix_stream_data*)data)->fd;
+	int old_is_blocking;
+	int flags;
+
+	switch (option) {
+#ifdef DIO_NONBLOCK
+		case PHP_STREAM_OPTION_READ_TIMEOUT:
+			if (ptrparam) {
+				struct timeval *tv = (struct timeval*)ptrparam;
+
+				flags = fcntl(fd, F_GETFL, 0);
+
+				/* A timeout of zero seconds and zero microseconds disables
+				   any existing timeout. */
+				if (tv->tv_sec || tv->tv_usec) {
+					data->timeout_sec = tv->tv_sec;
+					data->timeout_usec = tv->tv_usec;
+					data->has_timeout = -1;
+					(void) fcntl(fd, F_SETFL, flags & ~DIO_NONBLOCK);
+				} else {
+					data->timeout_sec = 0;
+					data->timeout_usec = 0;
+					data->has_timeout = 0;
+					data->timed_out = 0;
+					(void) fcntl(fd, F_SETFL, flags | DIO_NONBLOCK);
+				}
+
+				return PHP_STREAM_OPTION_RETURN_OK;
+			} else {
+				return PHP_STREAM_OPTION_RETURN_ERR;
+			}
+
+		case PHP_STREAM_OPTION_BLOCKING:
+			flags = fcntl(fd, F_GETFL, 0);
+			if (value) {
+				flags &= ~DIO_NONBLOCK;
+			} else {
+				flags |= DIO_NONBLOCK;
+			}
+			(void) fcntl(fd, F_SETFL, flags);
+
+			old_is_blocking = data->is_blocking;
+			data->is_blocking = value;
+			return old_is_blocking ? PHP_STREAM_OPTION_RETURN_OK : PHP_STREAM_OPTION_RETURN_ERR;
+#endif /* O_NONBLOCK */
+
+		default:
+			break;
+	}
+
+	return 1;
+}
+/* }}} */
+
 /* {{{ dio_raw_open_stream
  * Opens the underlying stream.
  */
@@ -507,7 +565,11 @@ static int dio_serial_init(php_dio_stream_data *data TSRMLS_DC) {
 	tio.c_cflag &= ~(PARENB|PARODD);
 	tio.c_cflag |= parity_def;
 
+#ifdef CRTSCTS
 	tio.c_cflag &= ~(CLOCAL | CRTSCTS);
+#else
+	tio.c_cflag &= ~CLOCAL;
+#endif
 	if (!data->flow_control) {
 		tio.c_cflag |= CLOCAL;
 #ifdef CRTSCTS

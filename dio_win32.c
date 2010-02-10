@@ -338,6 +338,90 @@ int dio_common_close(php_dio_stream_data *data) {
 }
 /* }}} */
 
+/* {{{ dio_common_set_option
+ * Sets/gets stream options
+ */
+int dio_common_set_option(php_dio_stream_data *data, int option, int value, void *ptrparam) {
+	COMMTIMEOUTS cto = { 0, 0, 0, 0, 0 };
+	int old_is_blocking = 0;
+
+	/* Can't do timeouts or non blocking with raw windows streams :-( */
+	if (DIO_STREAM_TYPE_SERIAL == data->stream_type) {
+		switch (option) {
+			case PHP_STREAM_OPTION_BLOCKING:
+				old_is_blocking   = data->is_blocking;
+				data->is_blocking = value ? 1 : 0;
+
+				/* Only change values if we need to change them. */
+				if (data->is_blocking != old_is_blocking) {
+					/* If we're not blocking but don't have a timeout
+					   set to return immediately */
+					if (!data->is_blocking && !data->has_timeout) {
+						cto.ReadIntervalTimeout = MAXDWORD;
+					}
+
+					/* If we have a timeout ignore the blocking and set
+					   the total time in which to read the data */
+					if (data->has_timeout) {
+						cto.ReadIntervalTimeout = MAXDWORD;
+						cto.ReadTotalTimeoutMultiplier  = MAXDWORD;
+						cto.ReadTotalTimeoutConstant = (data->timeout_usec / 1000) +
+							(data->timeout_sec * 1000);
+					}
+
+					if (!SetCommTimeouts(((php_dio_win32_stream_data*)data)->handle, &cto)) {
+						return PHP_STREAM_OPTION_RETURN_ERR;
+					}
+				}
+				return old_is_blocking ? PHP_STREAM_OPTION_RETURN_OK : PHP_STREAM_OPTION_RETURN_ERR;
+
+			case PHP_STREAM_OPTION_READ_TIMEOUT:
+				if (ptrparam) {
+					/* struct timeval is supported with PHP_WIN32 defined. */
+					struct timeval *tv = (struct timeval*)ptrparam;
+
+					/* A timeout of zero seconds and zero microseconds disables
+					   any existing timeout. */
+					if (tv->tv_sec || tv->tv_usec) {
+						data->timeout_sec = tv->tv_sec;
+						data->timeout_usec = tv->tv_usec;
+						data->has_timeout = -1;
+
+						cto.ReadIntervalTimeout = MAXDWORD;
+						cto.ReadTotalTimeoutMultiplier  = MAXDWORD;
+						cto.ReadTotalTimeoutConstant = (data->timeout_usec / 1000) +
+							(data->timeout_sec * 1000);
+					} else {
+						data->timeout_sec = 0;
+						data->timeout_usec = 0;
+						data->has_timeout = 0;
+						data->timed_out = 0;
+
+						/* If we're not blocking but don't have a timeout
+						   set to return immediately */
+						if (!data->is_blocking) {
+							cto.ReadIntervalTimeout = MAXDWORD;
+						}
+					}
+
+					if (!SetCommTimeouts(((php_dio_win32_stream_data*)data)->handle, &cto)) {
+						return PHP_STREAM_OPTION_RETURN_ERR;
+					} else {
+						return PHP_STREAM_OPTION_RETURN_OK;
+					}
+				} else {
+					return PHP_STREAM_OPTION_RETURN_ERR;
+				}
+
+			default:
+				break;
+		}
+	}
+
+	return 1;
+}
+/* }}} */
+
 /* {{{ dio_raw_open_stream
  * Opens the underlying stream.
  */

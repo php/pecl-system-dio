@@ -86,62 +86,8 @@ static int dio_stream_close(php_stream *stream, int close_handle TSRMLS_DC)
 static int dio_stream_set_option(php_stream *stream, int option, int value, void *ptrparam TSRMLS_DC)
 {
 	php_dio_stream_data *abstract = (php_dio_stream_data*)stream->abstract;
-#ifdef PHP_WIN32
-	/* TODO: Fill me in! */
-#else
-	int fd = ((php_dio_posix_stream_data*)stream->abstract)->fd;
-	int old_is_blocking;
-	int flags;
-#endif /* PHP_WIN32 */
 
 	switch (option) {
-
-#ifdef PHP_WIN32
-	/* TODO: Fill me in! */
-#else
-#ifdef DIO_NONBLOCK
-		case PHP_STREAM_OPTION_READ_TIMEOUT:
-			if (ptrparam) {
-				struct timeval *tv = (struct timeval*)ptrparam;
-
-				flags = fcntl(fd, F_GETFL, 0);
-
-				/* A timeout of zero seconds and zero micro seconds disables
-				   any existing timeout. */
-				if (tv->tv_sec || tv->tv_usec) {
-					abstract->timeout_sec = tv->tv_sec;
-					abstract->timeout_usec = tv->tv_usec;
-					abstract->has_timeout = -1;
-					(void) fcntl(fd, F_SETFL, flags & ~DIO_NONBLOCK);
-				} else {
-					abstract->timeout_sec = 0;
-					abstract->timeout_usec = 0;
-					abstract->has_timeout = 0;
-					abstract->timed_out = 0;
-					(void) fcntl(fd, F_SETFL, flags | DIO_NONBLOCK);
-				}
-
-				return PHP_STREAM_OPTION_RETURN_OK;
-			} else {
-				return PHP_STREAM_OPTION_RETURN_ERR;
-			}
-			break;
-
-		case PHP_STREAM_OPTION_BLOCKING:
-			flags = fcntl(fd, F_GETFL, 0);
-			if (value) {
-				flags &= ~DIO_NONBLOCK;
-			} else {
-				flags |= DIO_NONBLOCK;
-			}
-			(void) fcntl(fd, F_SETFL, flags);
-
-			old_is_blocking = abstract->is_blocking;
-			abstract->is_blocking = value;
-			return old_is_blocking ? PHP_STREAM_OPTION_RETURN_OK : PHP_STREAM_OPTION_RETURN_ERR;
-#endif /* O_NONBLOCK */
-#endif /* PHP_WIN32 */
-
 		case PHP_STREAM_OPTION_META_DATA_API:
 #ifdef DIO_NONBLOCK
 			add_assoc_bool((zval *)ptrparam, "timed_out", abstract->timed_out);
@@ -155,9 +101,12 @@ static int dio_stream_set_option(php_stream *stream, int option, int value, void
 			stream->eof = abstract->end_of_file;
 			return PHP_STREAM_OPTION_RETURN_OK;
 #endif /* PHP_MAJOR_VERSION >= 5 */
+
+		default:
+			break;
 	}
 
-	return 1;
+	return dio_common_set_option(abstract, option, value, ptrparam);
 }
 /* }}} */
 
@@ -200,6 +149,7 @@ static php_stream *dio_raw_fopen_wrapper(php_stream_wrapper *wrapper,
 	}
 
 	data = dio_create_stream_data();
+	data->stream_type = DIO_STREAM_TYPE_RAW;
 
 	/* Parse the context. */
 	if (context) {
@@ -266,6 +216,7 @@ PHP_FUNCTION(dio_raw) {
 	}
 
 	data = dio_create_stream_data();
+	data->stream_type = DIO_STREAM_TYPE_RAW;
 
 	if (options) {
 		dio_assoc_array_get_basic_options(options, data TSRMLS_CC);
@@ -362,6 +313,7 @@ static php_stream *dio_serial_fopen_wrapper(php_stream_wrapper *wrapper,
 	}
 
 	data = dio_create_stream_data();
+	data->stream_type = DIO_STREAM_TYPE_SERIAL;
 
 	/* Parse the context. */
 	if (context) {
@@ -428,6 +380,7 @@ PHP_FUNCTION(dio_serial) {
 	}
 
 	data = dio_create_stream_data();
+	data->stream_type = DIO_STREAM_TYPE_SERIAL;
 
 	if (options) {
 		dio_assoc_array_get_basic_options(options, data TSRMLS_CC);

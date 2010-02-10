@@ -31,6 +31,10 @@
 #include "php_dio_posix.h"
 #endif
 
+#define DIO_STREAM_TYPE_NONE   0
+#define DIO_STREAM_TYPE_RAW    1
+#define DIO_STREAM_TYPE_SERIAL 2
+
 long dio_convert_to_long(zval *val);
 
 php_dio_stream_data * dio_create_stream_data(void);
@@ -50,6 +54,8 @@ size_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count
 size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count);
 
 int dio_common_close(php_dio_stream_data *data);
+
+int dio_common_set_option(php_dio_stream_data *data, int option, int value, void *ptrparam);
 
 int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TSRMLS_DC);
 

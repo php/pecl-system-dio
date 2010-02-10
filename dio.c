@@ -186,6 +186,7 @@ PHP_FUNCTION(dio_write)
 /* }}} */
 
 #ifndef PHP_WIN32
+
 /* {{{ proto bool dio_truncate(resource fd, int offset)
    Truncate file descriptor fd to offset bytes */
 PHP_FUNCTION(dio_truncate)
@@ -270,6 +271,7 @@ PHP_FUNCTION(dio_seek)
 /* }}} */
 
 #ifndef PHP_WIN32
+
 /* {{{ proto mixed dio_fcntl(resource fd, int cmd[, mixed arg])
    Perform a c library fcntl on fd */
 PHP_FUNCTION(dio_fcntl)
@@ -375,6 +377,7 @@ PHP_FUNCTION(dio_fcntl)
 #endif
 
 #ifndef PHP_WIN32
+
 /* {{{ proto mixed dio_tcsetattr(resource fd,  array args )
    Perform a c library tcsetattr on fd */
 PHP_FUNCTION(dio_tcsetattr)
@@ -383,7 +386,7 @@ PHP_FUNCTION(dio_tcsetattr)
 	zval     *arg = NULL;
 	php_fd_t *f;
 	struct termios newtio;
-	int Baud_Rate, Data_Bits=8, Stop_Bits=1, Parity=0;
+	int Baud_Rate, Data_Bits=8, Stop_Bits=1, Parity=0, Flow_Control=1, Is_Canonical=1;
 	long BAUD,DATABITS,STOPBITS,PARITYON,PARITY;
 	HashTable      *fh;
 	zval          **element;
@@ -423,6 +426,18 @@ PHP_FUNCTION(dio_tcsetattr)
 		Parity = 0;
 	} else {
 		Parity = Z_LVAL_PP(element);
+	}
+
+	if (zend_hash_find(fh, "flow_control", sizeof("flow_control"), (void **) &element) == FAILURE) {
+		Flow_Control = 1;
+	} else {
+		Flow_Control = Z_LVAL_PP(element);
+	}
+
+	if (zend_hash_find(fh, "is_canonical", sizeof("is_canonical"), (void **) &element) == FAILURE) {
+		Is_Canonical = 1;
+	} else {
+		Is_Canonical = Z_LVAL_PP(element);
 	}
 
 	/* assign to correct values... */
@@ -525,10 +540,25 @@ PHP_FUNCTION(dio_tcsetattr)
 
 	memset(&newtio, 0, sizeof(newtio));
 	tcgetattr(f->fd, &newtio);
-	newtio.c_cflag = BAUD | CRTSCTS | DATABITS | STOPBITS | PARITYON | PARITY | CLOCAL | CREAD;
-	newtio.c_iflag = IGNPAR;
-	newtio.c_oflag = 0;
-	newtio.c_lflag = 0;       /* ICANON; */
+
+	if (Is_Canonical) {
+		newtio.c_iflag = IGNPAR | ICRNL;
+		newtio.c_oflag = 0;
+		newtio.c_lflag = ICANON;
+	} else {
+		cfmakeraw(&newtio);
+	}
+
+	newtio.c_cflag = BAUD | DATABITS | STOPBITS | PARITYON | PARITY | CLOCAL | CREAD;
+
+#ifdef CRTSCTS
+	if (Flow_Control) {
+		newtio.c_cflag |= CRTSCTS;
+	}
+#endif
+
+	if (Is_Canonical)
+
 	newtio.c_cc[VMIN] = 1;
 	newtio.c_cc[VTIME] = 0;
 	tcflush(f->fd, TCIFLUSH);
@@ -556,66 +586,12 @@ PHP_FUNCTION(dio_close)
 }
 /* }}} */
 
-/*
-   +----------------------------------------------------------------------+
-   |                   END OF DEPRECATED FUNCTIONALITY                    |
-   +----------------------------------------------------------------------+
- */
-
-function_entry dio_functions[] = {
-	/* Class functions. */
-
-	/* Legacy functions (Deprecated - See dio_legacy.c) */
-	PHP_FE(dio_open,      NULL)
-#ifndef PHP_WIN32
-	PHP_FE(dio_truncate,  NULL)
-#endif
-	PHP_FE(dio_stat,      NULL)
-	PHP_FE(dio_seek,      NULL)
-#ifndef PHP_WIN32
-	PHP_FE(dio_fcntl,     NULL)
-#endif
-	PHP_FE(dio_read,      NULL)
-	PHP_FE(dio_write,     NULL)
-	PHP_FE(dio_close,     NULL)
-#ifndef PHP_WIN32
-	PHP_FE(dio_tcsetattr, NULL)
-#endif
-
-	/* Stream functions */
-	PHP_FE(dio_raw, NULL)
-	PHP_FE(dio_serial, NULL)
-
-	/* End of functions */
-	{NULL, NULL, NULL}
-};
-
-zend_module_entry dio_module_entry = {
-	STANDARD_MODULE_HEADER,
-	"dio",
-	dio_functions,
-	PHP_MINIT(dio),
-	NULL,
-	NULL,	
-	NULL,
-	PHP_MINFO(dio),
-	PHP_DIO_VERSION,
-	STANDARD_MODULE_PROPERTIES
-};
-
-#ifdef COMPILE_DL_DIO
-ZEND_GET_MODULE(dio)
-#endif
-
 #define RDIOC(c) REGISTER_LONG_CONSTANT(#c, c, CONST_CS | CONST_PERSISTENT)
-#define DIO_UNDEF_CONST -1
 
-/* {{{ PHP_MINIT_FUNCTION
+/* {{{ dio_init_legacy_defines
+ * Initialises the legacy PHP defines
  */
-PHP_MINIT_FUNCTION(dio)
-{
-	le_fd = zend_register_list_destructors_ex(_dio_close_fd, NULL, le_fd_name, module_number);
-
+static void dio_init_legacy_defines(int module_number) {
 	RDIOC(O_RDONLY);
 	RDIOC(O_WRONLY);
 	RDIOC(O_RDWR);
@@ -664,7 +640,132 @@ PHP_MINIT_FUNCTION(dio)
 	RDIOC(F_RDLCK);
 	RDIOC(F_WRLCK);
 #endif
+}
 
+ZEND_BEGIN_ARG_INFO_EX(dio_open_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, filename)
+	ZEND_ARG_INFO(0, flags)
+	ZEND_ARG_INFO(0, mode)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(dio_read_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, fd)
+	ZEND_ARG_INFO(0, n)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(dio_write_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, fd)
+	ZEND_ARG_INFO(0, data)
+	ZEND_ARG_INFO(0, len)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(dio_stat_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, fd)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(dio_truncate_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, fd)
+	ZEND_ARG_INFO(0, offset)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(dio_seek_args, 0, 0, 3)
+	ZEND_ARG_INFO(0, fd)
+	ZEND_ARG_INFO(0, pos)
+	ZEND_ARG_INFO(0, whence)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(dio_fcntl_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, fd)
+	ZEND_ARG_INFO(0, cmd)
+	ZEND_ARG_INFO(0, arg)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(dio_tcsetattr_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, fd)
+	ZEND_ARG_INFO(0, args)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(dio_close_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, fd)
+ZEND_END_ARG_INFO()
+
+/*
+   +----------------------------------------------------------------------+
+   |                   END OF DEPRECATED FUNCTIONALITY                    |
+   +----------------------------------------------------------------------+
+ */
+
+ZEND_BEGIN_ARG_INFO_EX(dio_raw_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, filename)
+	ZEND_ARG_INFO(0, mode)
+	ZEND_ARG_INFO(0, options)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(dio_serial_args, 0, 0, 2)
+	ZEND_ARG_INFO(0, filename)
+	ZEND_ARG_INFO(0, mode)
+	ZEND_ARG_INFO(0, options)
+ZEND_END_ARG_INFO()
+
+static zend_object_handlers dio_raw_object_handlers;
+
+static function_entry dio_functions[] = {
+	/* Class functions. */
+
+	/* Legacy functions (Deprecated - See dio_legacy.c) */
+	PHP_FE(dio_open, dio_open_args)
+#ifndef PHP_WIN32
+	PHP_FE(dio_truncate, dio_truncate_args)
+#endif
+	PHP_FE(dio_stat, dio_stat_args)
+	PHP_FE(dio_seek, dio_seek_args)
+#ifndef PHP_WIN32
+	PHP_FE(dio_fcntl, dio_fcntl_args)
+#endif
+	PHP_FE(dio_read, dio_read_args)
+	PHP_FE(dio_write, dio_write_args)
+	PHP_FE(dio_close, dio_close_args)
+#ifndef PHP_WIN32
+	PHP_FE(dio_tcsetattr, dio_tcsetattr_args)
+#endif
+
+	/* Stream functions */
+	PHP_FE(dio_raw, dio_raw_args)
+	PHP_FE(dio_serial, dio_serial_args)
+
+	/* End of functions */
+	{NULL, NULL, NULL}
+};
+
+zend_module_entry dio_module_entry = {
+	STANDARD_MODULE_HEADER,
+	"dio",
+	dio_functions,
+	PHP_MINIT(dio),
+	NULL,
+	NULL,	
+	NULL,
+	PHP_MINFO(dio),
+	PHP_DIO_VERSION,
+	STANDARD_MODULE_PROPERTIES
+};
+
+#ifdef COMPILE_DL_DIO
+ZEND_GET_MODULE(dio)
+#endif
+
+#define DIO_UNDEF_CONST -1
+
+/* {{{ PHP_MINIT_FUNCTION
+ */
+PHP_MINIT_FUNCTION(dio)
+{
+	/* Legacy resource destructor. */
+	le_fd = zend_register_list_destructors_ex(_dio_close_fd, NULL, le_fd_name, module_number);
+
+	dio_init_legacy_defines(module_number);
+
+	/* Register the stream wrappers */
 	return (php_register_url_stream_wrapper(DIO_RAW_STREAM_NAME, &php_dio_raw_stream_wrapper TSRMLS_CC) == SUCCESS &&
 			php_register_url_stream_wrapper(DIO_SERIAL_STREAM_NAME, &php_dio_serial_stream_wrapper TSRMLS_CC) == SUCCESS) ? SUCCESS : FAILURE;
 }

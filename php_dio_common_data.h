@@ -23,6 +23,8 @@
  * by all versions of DIO.
  */
 typedef struct _php_dio_stream_data {
+	/* Stream type */
+	int stream_type;
 	/* Stream options */
 	int end_of_file;
 #ifdef DIO_HAS_FILEPERMS

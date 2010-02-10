@@ -24,10 +24,10 @@ more than adequate.
   <email>cyberspice@php.net</email>
   <active>yes</active>
  </lead>
- <date>2010-02-02</date>
- <time>17:41:00</time>
+ <date>2010-02-10</date>
+ <time>12:10:00</time>
  <version>
-  <release>0.0.4</release>
+  <release>0.0.4RC4</release>
   <api>0.0.4</api>
  </version>
  <stability>
@@ -43,6 +43,13 @@ Packaged so it can be used.
   <dir name="/">
    <dir name="tests">
     <file name="001.phpt" role="test" />
+    <file name="dio_raw_stream_001.phpt" role="test" />
+    <file name="dio_raw_stream_002.phpt" role="test" />
+    <file name="dio_raw_stream_003.phpt" role="test" />
+    <file name="dio_raw_stream_004.phpt" role="test" />
+    <file name="dio_raw_stream_005.phpt" role="test" />
+    <file name="dio_raw_stream_006.phpt" role="test" />
+    <file name="dio_raw_stream_007.phpt" role="test" />
    </dir> <!-- //tests -->
    <file name="config.m4" role="src" />
    <file name="dio.c" role="src" />
