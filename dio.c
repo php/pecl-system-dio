@@ -709,7 +709,7 @@ ZEND_END_ARG_INFO()
 
 static zend_object_handlers dio_raw_object_handlers;
 
-static function_entry dio_functions[] = {
+static zend_function_entry dio_functions[] = {
 	/* Class functions. */
 
 	/* Legacy functions (Deprecated - See dio_legacy.c) */
