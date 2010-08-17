@@ -435,7 +435,7 @@ PHP_FUNCTION(dio_tcsetattr)
 	}
 
 	if (zend_hash_find(fh, "is_canonical", sizeof("is_canonical"), (void **) &element) == FAILURE) {
-		Is_Canonical = 1;
+		Is_Canonical = 0;
 	} else {
 		Is_Canonical = Z_LVAL_PP(element);
 	}
