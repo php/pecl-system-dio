@@ -24,11 +24,11 @@ more than adequate.
   <email>cyberspice@php.net</email>
   <active>yes</active>
  </lead>
- <date>2010-02-10</date>
- <time>18:32:00</time>
+ <date>2011-10-28</date>
+ <time>21:11:00</time>
  <version>
-  <release>0.0.4</release>
-  <api>0.0.4</api>
+  <release>0.0.5</release>
+  <api>0.0.5</api>
  </version>
  <stability>
   <release>beta</release>
@@ -36,17 +36,18 @@ more than adequate.
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-Added stream wrapper support.  The dio.raw and dio.serial streams support
-raw and serial streams respectively on both POSIX and Win32.  Streams can
-be blocking, non-blocking and reads can have timeouts.  
+Added dio_fdopen() and dio_dup().
 
-The dio_open(), dio_read() etc. API is now considered legacy and streams
-should be used where possible.
+dio_fdopen() returns a dio resource for an integer UNIX style file descriptor.
+
+dio_dup() duplicates an existing stream.
  </notes>
  <contents>
   <dir name="/">
    <dir name="tests">
     <file name="001.phpt" role="test" />
+    <file name="002.phpt" role="test" />
+    <file name="003.phpt" role="test" />
     <file name="dio_raw_stream_001.phpt" role="test" />
     <file name="dio_raw_stream_002.phpt" role="test" />
     <file name="dio_raw_stream_003.phpt" role="test" />
