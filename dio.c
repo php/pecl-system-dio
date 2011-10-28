@@ -111,13 +111,72 @@ PHP_FUNCTION(dio_open)
 		RETURN_FALSE;
 	}
 
+	if (!new_php_fd(&f, fd)) {
+		RETURN_FALSE;
+	}
+
+	ZEND_REGISTER_RESOURCE(return_value, f, le_fd);
+}
+/* }}} */
+
+#ifndef PHP_WIN32
+
+/* {{{ proto resource dio_fdopen(int fd)
+   Returns a resource for the specified file descriptor. */
+PHP_FUNCTION(dio_fdopen)
+{
+	php_fd_t *f;
+	long lfd;
+	int fd;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &lfd) == FAILURE) {
+		return;
+	}
+
+	fd = (int)lfd;
+
+	if ((fcntl(fd, F_GETFL, 0) == -1) && (errno == EBADFD)) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Bad file descriptor %d", fd);
+		RETURN_FALSE;
+	}
 
 	if (!new_php_fd(&f, fd)) {
 		RETURN_FALSE;
 	}
+
 	ZEND_REGISTER_RESOURCE(return_value, f, le_fd);
 }
 /* }}} */
+
+
+/* {{{ proto resource dio_dup(resource fd)
+   Opens a duplicate of the specified open resource. */
+PHP_FUNCTION(dio_dup)
+{
+	zval     *r_fd;
+	php_fd_t *f, *df;
+	int dfd;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &r_fd) == FAILURE) {
+		return;
+	}
+
+	ZEND_FETCH_RESOURCE(f, php_fd_t *, &r_fd, -1, le_fd_name, le_fd);
+
+	dfd = dup(f->fd);
+	if (dfd == -1) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "cannot duplication file descriptor %d: %s", f->fd, strerror(errno));
+		RETURN_FALSE;
+	}
+
+	if (!new_php_fd(&df, dfd)) {
+		RETURN_FALSE;
+	}
+
+	ZEND_REGISTER_RESOURCE(return_value, df, le_fd);
+}
+/* }}} */
+#endif
 
 /* {{{ proto string dio_read(resource fd[, int n])
    Read n bytes from fd and return them, if n is not specified, read 1k */
@@ -178,7 +237,7 @@ PHP_FUNCTION(dio_write)
 
 	res = write(f->fd, data, trunc_len ? trunc_len : data_len);
 	if (res == -1) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "cannot write data to file descriptor %d, %s", f->fd, strerror(errno));
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "cannot write data to file descriptor %d: %s", f->fd, strerror(errno));
 	}
 
 	RETURN_LONG(res);
@@ -648,6 +707,15 @@ ZEND_BEGIN_ARG_INFO_EX(dio_open_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, mode)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(dio_fdopen_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, fd)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(dio_dup_args, 0, 0, 1)
+	ZEND_ARG_INFO(0, fd)
+ZEND_END_ARG_INFO()
+
+
 ZEND_BEGIN_ARG_INFO_EX(dio_read_args, 0, 0, 1)
 	ZEND_ARG_INFO(0, fd)
 	ZEND_ARG_INFO(0, n)
@@ -715,6 +783,8 @@ static zend_function_entry dio_functions[] = {
 	/* Legacy functions (Deprecated - See dio_legacy.c) */
 	PHP_FE(dio_open, dio_open_args)
 #ifndef PHP_WIN32
+	PHP_FE(dio_fdopen, dio_fdopen_args)
+	PHP_FE(dio_dup, dio_dup_args)
 	PHP_FE(dio_truncate, dio_truncate_args)
 #endif
 	PHP_FE(dio_stat, dio_stat_args)
