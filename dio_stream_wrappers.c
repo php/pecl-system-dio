@@ -143,8 +143,7 @@ static php_stream *dio_raw_fopen_wrapper(php_stream_wrapper *wrapper,
 	filename = path + sizeof(DIO_RAW_STREAM_PROTOCOL) - 1;
 
 	/* Check we can actually access it. */
-	if (php_check_open_basedir(filename TSRMLS_CC) ||
-		(PG(safe_mode) && !php_checkuid(filename, mode, CHECKUID_CHECK_MODE_PARAM))) {
+	if (php_check_open_basedir(filename TSRMLS_CC) || DIO_SAFE_MODE_CHECK(filename, mode)) {
 		return NULL;
 	}
 
@@ -210,8 +209,7 @@ PHP_FUNCTION(dio_raw) {
 	}
 
 	/* Check we can actually access the file. */
-	if (php_check_open_basedir(filename TSRMLS_CC) ||
-		(PG(safe_mode) && !php_checkuid(filename, mode, CHECKUID_CHECK_MODE_PARAM))) {
+	if (php_check_open_basedir(filename TSRMLS_CC) || DIO_SAFE_MODE_CHECK(filename, mode)) {
 		RETURN_FALSE;
 	}
 
@@ -307,8 +305,7 @@ static php_stream *dio_serial_fopen_wrapper(php_stream_wrapper *wrapper,
 	filename = path + sizeof(DIO_SERIAL_STREAM_PROTOCOL) - 1;
 
 	/* Check we can actually access it. */
-	if (php_check_open_basedir(filename TSRMLS_CC) ||
-		(PG(safe_mode) && !php_checkuid(filename, mode, CHECKUID_CHECK_MODE_PARAM))) {
+	if (php_check_open_basedir(filename TSRMLS_CC) || DIO_SAFE_MODE_CHECK(filename, mode)) {
 		return NULL;
 	}
 
@@ -374,8 +371,7 @@ PHP_FUNCTION(dio_serial) {
 	}
 
 	/* Check we can actually access the file. */
-	if (php_check_open_basedir(filename TSRMLS_CC) ||
-		(PG(safe_mode) && !php_checkuid(filename, mode, CHECKUID_CHECK_MODE_PARAM))) {
+	if (php_check_open_basedir(filename TSRMLS_CC) || DIO_SAFE_MODE_CHECK(filename, mode)) {
 		RETURN_FALSE;
 	}
 

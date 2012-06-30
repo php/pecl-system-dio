@@ -96,7 +96,7 @@ PHP_FUNCTION(dio_open)
 		return;
 	}
 
-	if (php_check_open_basedir(file_name TSRMLS_CC) || (PG(safe_mode) && !php_checkuid(file_name, "wb+", CHECKUID_CHECK_MODE_PARAM))) {
+	if (php_check_open_basedir(file_name TSRMLS_CC) || DIO_SAFE_MODE_CHECK(file_name, "wb+")) {
 		RETURN_FALSE;
 	}
 

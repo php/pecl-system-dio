@@ -24,6 +24,13 @@
 #define DIO_SERIAL_STREAM_NAME      "dio.serial"
 #define DIO_SERIAL_STREAM_PROTOCOL  "dio.serial://"
 
+/* To support PHP 5.4 and later */
+#if PHP_VERSION_ID < 50399
+#define DIO_SAFE_MODE_CHECK(f, m) (PG(safe_mode) && !php_checkuid(f, m, CHECKUID_CHECK_MODE_PARAM))
+#else
+#define DIO_SAFE_MODE_CHECK(f, m) (0)
+#endif
+
 extern php_stream_wrapper php_dio_raw_stream_wrapper;
 
 PHP_FUNCTION(dio_raw);
