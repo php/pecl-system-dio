@@ -135,7 +135,7 @@ PHP_FUNCTION(dio_fdopen)
 
 	fd = (int)lfd;
 
-	if ((fcntl(fd, F_GETFL, 0) == -1) && (errno == EBADFD)) {
+	if ((fcntl(fd, F_GETFL, 0) == -1) && (errno == EBADF)) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Bad file descriptor %d", fd);
 		RETURN_FALSE;
 	}
