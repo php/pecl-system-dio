@@ -24,11 +24,11 @@ more than adequate.
   <email>cyberspice@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-02-17</date>
- <time>14:23:00</time>
+ <date>2012-06-30</date>
+ <time>23:37:00</time>
  <version>
-  <release>0.0.5</release>
-  <api>0.0.5</api>
+  <release>0.0.6</release>
+  <api>0.0.6</api>
  </version>
  <stability>
   <release>beta</release>
@@ -36,11 +36,8 @@ more than adequate.
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-Added dio_fdopen() and dio_dup().
-
-dio_fdopen() returns a dio resource for an integer UNIX style file descriptor.
-
-dio_dup() duplicates an existing stream.
+Fixes for bugs #61989 (PECL package "dio" will not compile against PHP-5.4.3)
+and #62188 (Possible typo in errno check in dio_fdopen()). 
  </notes>
  <contents>
   <dir name="/">
