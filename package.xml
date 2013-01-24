@@ -54,6 +54,7 @@ and #62188 (Possible typo in errno check in dio_fdopen()).
     <file name="dio_raw_stream_007.phpt" role="test" />
    </dir> <!-- //tests -->
    <file name="config.m4" role="src" />
+   <file name="config.w32" role="src" />
    <file name="dio.c" role="src" />
    <file name="dio_common.c" role="src" />
    <file name="dio_posix.c" role="src" />
