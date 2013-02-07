@@ -21,8 +21,80 @@
 #endif
 
 #include "php.h"
-
 #include "php_dio_common.h"
+
+#ifndef ZEND_WIN32
+#error ZEND_WIN32 not defined!
+#endif
+
+/* {{{ dio_last_error_php_error
+ * Generates a PHP error message based upon the last Windows error.
+ */
+static void dio_last_error_php_error(int level, char * message TSRMLS_DC) {
+	LPVOID msgbuf;
+	DWORD  msgbuflen;
+	char * errmsg;
+	DWORD  err;
+
+#ifdef UNICODE
+	DWORD  errmsglen;
+#endif
+
+	err = GetLastError();
+	msgbuflen = FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER|
+		FORMAT_MESSAGE_FROM_SYSTEM|
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		err,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&msgbuf,
+		0,
+		NULL);
+
+#ifdef UNICODE
+
+	/* Get the length of the converted message */
+	errmsglen = WideCharToMultibyte(
+		CP_ACP,
+		0
+		(LPCWSTR)msgbuf,
+		-1,
+		(LPSTR)errmsg,
+		0,
+		NULL,
+		NULL);
+
+	/* Allocate a buffer */
+	errmsg = emalloc(errmsglen);
+	if (!errmsg) {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Out of memory in dio_last_error_php_error()!");
+		LocalFree(msgbuf);
+		return;
+	}
+
+	/* Convert the message */
+	errmsglen = WideCharToMultibyte(
+		CP_ACP,
+		0
+		(LPCWSTR)msgbuf,
+		-1,
+		(LPSTR)errmsg,
+		errmsglen,
+		NULL,
+		NULL);
+
+#else
+	errmsg = (char *)msgbuf;
+#endif
+
+	php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s[ERROR %d] %s", message, err, errmsg);
+
+	LocalFree(msgbuf);
+#ifdef UNICODE
+	efree(errmsg);
+#endif
+}
 
 /* {{{ dio_data_rate_to_define
  * Converts a numeric data rate to a termios define
@@ -48,6 +120,7 @@ static int dio_data_rate_to_define(long rate, DWORD *def) {
 		case 115200:
 		case 56000:
 		case 128000:
+		case 256000:
 			break;
 		default:
 			return 0;
@@ -87,13 +160,13 @@ static int dio_stop_bits_to_define(int stop_bits, DWORD *def) {
 
 	switch (stop_bits) {
 		case 1:
-			val = 0;
+			val = ONESTOPBIT;
 			break;
 		case 2:
-			val = 2;
+			val = TWOSTOPBITS;
 			break;
 		case 3:
-			val = 1;
+			val = ONE5STOPBITS;
 			break;
 		default:
 			return 0;
@@ -108,16 +181,23 @@ static int dio_stop_bits_to_define(int stop_bits, DWORD *def) {
  * Converts a parity type to a termios define
  */
 static int dio_parity_to_define(int parity, DWORD *def) {
+	DWORD val;
+
 	switch (parity) {
 		case 0:
+			val = NOPARITY;
+			break;
 		case 1:
+			val = ODDPARITY;
+			break;
 		case 2:
+			val = EVENPARITY;
 			break;
 		default:
 			return 0;
 	}
 
-	*def = (DWORD)parity;
+	*def = val;
 	return 1;
 }
 /* }}} */
@@ -502,7 +582,7 @@ int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TS
  */
 static int dio_serial_init(php_dio_stream_data *data TSRMLS_DC) {
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
-	DWORD err, rate_def, data_bits_def, stop_bits_def, parity_def;
+	DWORD rate_def, data_bits_def, stop_bits_def, parity_def;
 	DCB dcb;
 
 	if (!dio_data_rate_to_define(data->data_rate, &rate_def)) {
@@ -526,8 +606,7 @@ static int dio_serial_init(php_dio_stream_data *data TSRMLS_DC) {
 	}
 
 	if (!GetCommState(wdata->handle, &(wdata->olddcb))) {
-		err = GetLastError();
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "GetCommState() failed! (%d)", err);
+		dio_last_error_php_error(E_WARNING, "GetCommState failed:" TSRMLS_CC);
 		return 0;
 	}
 
@@ -563,6 +642,7 @@ static int dio_serial_init(php_dio_stream_data *data TSRMLS_DC) {
 	}
 
 	if (!SetCommState(wdata->handle, &dcb)) {
+		dio_last_error_php_error(E_WARNING, "SetCommState failed:" TSRMLS_CC);
 		return 0;
 	}
 
@@ -617,15 +697,13 @@ int dio_serial_purge(php_dio_stream_data *data) {
 int dio_serial_open_stream(char *filename, char *mode, php_dio_stream_data *data TSRMLS_DC) {
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
 	COMMTIMEOUTS cto = { 0, 0, 0, 0, 0 };
-	DWORD err;
 
 	if (!dio_raw_open_stream(filename, mode, data TSRMLS_CC)) {
 		return 0;
 	}
 
 	if (!GetCommTimeouts(wdata->handle, &(wdata->oldcto))) {
-		err = GetLastError();
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "SetCommTimeouts() failed! (%d) Not a comm port?", err);
+		dio_last_error_php_error(E_WARNING, "SetCommTimeouts() failed (Not a comm port?):" TSRMLS_CC);
 		CloseHandle(wdata->handle);
 		return 0;
 	}
