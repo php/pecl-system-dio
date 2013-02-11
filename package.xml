@@ -24,11 +24,11 @@ more than adequate.
   <email>cyberspice@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-06-30</date>
- <time>23:37:00</time>
+ <date>2013-02-11</date>
+ <time>15:25</time>
  <version>
-  <release>0.0.6</release>
-  <api>0.0.6</api>
+  <release>0.0.7</release>
+  <api>0.0.7</api>
  </version>
  <stability>
   <release>beta</release>
@@ -36,8 +36,9 @@ more than adequate.
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-Fixes for bugs #61989 (PECL package "dio" will not compile against PHP-5.4.3)
-and #62188 (Possible typo in errno check in dio_fdopen()). 
+Added far better windows error reporting. Warnings now raised when Win32 API
+calls return errors. The warnings include the underlying Windows error
+message.
  </notes>
  <contents>
   <dir name="/">
