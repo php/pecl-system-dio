@@ -775,7 +775,7 @@ ZEND_BEGIN_ARG_INFO_EX(dio_serial_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, options)
 ZEND_END_ARG_INFO()
 
-static zend_object_handlers dio_raw_object_handlers;
+// not used static zend_object_handlers dio_raw_object_handlers;
 
 static zend_function_entry dio_functions[] = {
 	/* Class functions. */

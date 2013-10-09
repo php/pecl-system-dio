@@ -266,7 +266,6 @@ size_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count
  * earlier than early time.
  */
 static int dio_timeval_subtract(struct timeval *late, struct timeval *early, struct timeval *diff) {
-	struct timeval *tmp;
 
 	/* Handle negatives */
 	if (late->tv_sec < early->tv_sec) {
