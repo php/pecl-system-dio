@@ -28,7 +28,10 @@
  * Convert an fopen() mode string to open() flags
  */
 static int dio_stream_mode_to_flags(const char *mode) {
-	int  flags = 0, ch = 0, bin = 1;
+	int  flags = 0, ch = 0;
+#if defined(_O_TEXT) && defined(O_BINARY)
+	int  bin = 1;
+#endif
 
 	switch(mode[ch++]) {
 		case 'r':
@@ -45,9 +48,11 @@ static int dio_stream_mode_to_flags(const char *mode) {
 			break;
 	}
 
+#if defined(_O_TEXT) && defined(O_BINARY)
 	if (mode[ch] != '+') {
 		bin = (mode[ch++] == 'b');
 	}
+#endif
 
 	if (mode[ch] == '+') {
 		flags |= O_RDWR;
