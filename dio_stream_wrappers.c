@@ -228,9 +228,8 @@ PHP_FUNCTION(dio_raw) {
 			efree(data);
 			RETURN_FALSE;
 		}
+		php_stream_to_zval(stream, return_value);
 	}
-
-	php_stream_to_zval(stream, return_value);
 }
 /* }}} */
 
@@ -390,9 +389,8 @@ PHP_FUNCTION(dio_serial) {
 			efree(data);
 			RETURN_FALSE;
 		}
+		php_stream_to_zval(stream, return_value);
 	}
-
-	php_stream_to_zval(stream, return_value);
 }
 /* }}} */
 
