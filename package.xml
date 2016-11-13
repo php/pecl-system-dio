@@ -24,7 +24,7 @@ more than adequate.
   <email>cyberspice@php.net</email>
   <active>yes</active>
  </lead>
- <date>2013-02-11</date>
+ <date>2016-11-13</date>
  <time>15:25:00</time>
  <version>
   <release>0.0.8dev</release>
@@ -52,6 +52,7 @@ more than adequate.
     <file name="dio_raw_stream_006.phpt" role="test" />
     <file name="dio_raw_stream_007.phpt" role="test" />
    </dir> <!-- //tests -->
+   <file name="LICENSE" role="doc" />
    <file name="config.m4" role="src" />
    <file name="config.w32" role="src" />
    <dir name="php5">
