@@ -25,9 +25,9 @@ more than adequate.
   <active>yes</active>
  </lead>
  <date>2013-02-11</date>
- <time>15:25</time>
+ <time>15:25:00</time>
  <version>
-  <release>0.0.7</release>
+  <release>0.0.8dev</release>
   <api>0.0.7</api>
  </version>
  <stability>
@@ -36,9 +36,7 @@ more than adequate.
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-Added far better windows error reporting. Warnings now raised when Win32 API
-calls return errors. The warnings include the underlying Windows error
-message.
+- PHP 7 compatible version
  </notes>
  <contents>
   <dir name="/">
@@ -56,17 +54,32 @@ message.
    </dir> <!-- //tests -->
    <file name="config.m4" role="src" />
    <file name="config.w32" role="src" />
-   <file name="dio.c" role="src" />
-   <file name="dio_common.c" role="src" />
-   <file name="dio_posix.c" role="src" />
-   <file name="dio_win32.c" role="src" />
-   <file name="dio_stream_wrappers.c" role="src" />
-   <file name="php_dio.h" role="src" />
-   <file name="php_dio_common.h" role="src" />
-   <file name="php_dio_common_data.h" role="src" />
-   <file name="php_dio_posix.h" role="src" />
-   <file name="php_dio_win32.h" role="src" />
-   <file name="php_dio_stream_wrappers.h" role="src" />
+   <dir name="php5">
+    <file name="dio.c" role="src" />
+    <file name="dio_common.c" role="src" />
+    <file name="dio_posix.c" role="src" />
+    <file name="dio_win32.c" role="src" />
+    <file name="dio_stream_wrappers.c" role="src" />
+    <file name="php_dio.h" role="src" />
+    <file name="php_dio_common.h" role="src" />
+    <file name="php_dio_common_data.h" role="src" />
+    <file name="php_dio_posix.h" role="src" />
+    <file name="php_dio_win32.h" role="src" />
+    <file name="php_dio_stream_wrappers.h" role="src" />
+   </dir>
+   <dir name="php7">
+    <file name="dio.c" role="src" />
+    <file name="dio_common.c" role="src" />
+    <file name="dio_posix.c" role="src" />
+    <file name="dio_win32.c" role="src" />
+    <file name="dio_stream_wrappers.c" role="src" />
+    <file name="php_dio.h" role="src" />
+    <file name="php_dio_common.h" role="src" />
+    <file name="php_dio_common_data.h" role="src" />
+    <file name="php_dio_posix.h" role="src" />
+    <file name="php_dio_win32.h" role="src" />
+    <file name="php_dio_stream_wrappers.h" role="src" />
+   </dir>
   </dir> <!-- / -->
  </contents>
  <dependencies>
