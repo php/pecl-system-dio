@@ -7,7 +7,7 @@
    | This source file is subject to version 3.0 of the PHP license,       |
    | that is bundled with this package in the file LICENSE, and is        |
    | available through the world-wide-web at the following url:           |
-   | http://www.php.net/license/3_0.txt.                                  |
+   | http://www.php.net/license/3_01.txt.                                 |
    | If you did not receive a copy of the PHP license and are unable to   |
    | obtain it through the world-wide-web, please send a note to          |
    | license@php.net so we can mail you a copy immediately.               |
@@ -775,7 +775,7 @@ ZEND_BEGIN_ARG_INFO_EX(dio_serial_args, 0, 0, 2)
 	ZEND_ARG_INFO(0, options)
 ZEND_END_ARG_INFO()
 
-// not used static zend_object_handlers dio_raw_object_handlers;
+/* not used static zend_object_handlers dio_raw_object_handlers; */
 
 static zend_function_entry dio_functions[] = {
 	/* Class functions. */

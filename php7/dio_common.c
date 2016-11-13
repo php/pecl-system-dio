@@ -7,7 +7,7 @@
    | This source file is subject to version 3.0 of the PHP license,       |
    | that is bundled with this package in the file LICENSE, and is        |
    | available through the world-wide-web at the following url:           |
-   | http://www.php.net/license/3_0.txt.                                  |
+   | http://www.php.net/license/3_01.txt.                                 |
    | If you did not receive a copy of the PHP license and are unable to   |
    | obtain it through the world-wide-web, please send a note to          |
    | license@php.net so we can mail you a copy immediately.               |
@@ -73,7 +73,6 @@ long dio_convert_to_long(zval *val) {
  */
 void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data TSRMLS_DC) {
 #if defined(DIO_HAS_FILEPERMS) || defined(DIO_NONBLOCK)
-	//zval **tmpzval;
 	zval      *tmpzval;
 	HashTable *opthash;
 
@@ -82,7 +81,6 @@ void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data 
 
 #ifdef DIO_HAS_FILEPERMS
 	/* This is the file mode flags used by open(). */
-	//if (zend_hash_find(opthash, "perms", sizeof("perms"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = zend_hash_str_find(opthash, "perms", sizeof("perms") -1)) != NULL) {
 		data->perms = (int)dio_convert_to_long(tmpzval);
 		data->has_perms = 1;
@@ -92,21 +90,18 @@ void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data 
 #ifdef DIO_NONBLOCK
 	/* This sets the underlying stream to be blocking/non
 	   block (i.e. O_NONBLOCK) */
-	//if (zend_hash_find(opthash, "is_blocking", sizeof("is_blocking"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = zend_hash_str_find(opthash, "is_blocking", sizeof("is_blocking") -1)) != NULL) {
 		data->is_blocking = dio_convert_to_long(tmpzval) ? 1 : 0;
 	}
 
 	/* This is the timeout value for reads in seconds.  Only one of
 	   timeout_secs or timeout_usecs need be defined to define a timeout. */
-	//if (zend_hash_find(opthash, "timeout_secs", sizeof("timeout_secs"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = zend_hash_str_find(opthash, "timeout_secs", sizeof("timeout_secs") -1)) != NULL) {
 		data->timeout_sec = dio_convert_to_long(tmpzval);
 	}
 
 	/* This is the timeout value for reads in microseconds.  Only one of
 	   timeout_secs or timeout_usecs need be defined to define a timeout. */
-	//if (zend_hash_find(opthash, "timeout_usecs", sizeof("timeout_usecs"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = zend_hash_str_find(opthash, "timeout_usecs", sizeof("timeout_usecs") -1)) != NULL) {
 		data->timeout_usec = dio_convert_to_long(tmpzval);
 	}
@@ -125,32 +120,26 @@ void dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data
 
 	opthash = HASH_OF(options);
 
-	//if (zend_hash_find(opthash, "data_rate", sizeof("data_rate"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = zend_hash_str_find(opthash, "data_rate", sizeof("data_rate") -1)) != NULL) {
 		data->data_rate = dio_convert_to_long(tmpzval);
 	}
 
-	//if (zend_hash_find(opthash, "data_bits", sizeof("data_bits"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = zend_hash_str_find(opthash, "data_bits", sizeof("data_bits") -1)) != NULL) {
 		data->data_bits = (int)dio_convert_to_long(tmpzval);
 	}
 
-	//if (zend_hash_find(opthash, "stop_bits", sizeof("stop_bits"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = zend_hash_str_find(opthash, "stop_bits", sizeof("stop_bits") -1)) != NULL) {
 		data->stop_bits = (int)dio_convert_to_long(tmpzval);
 	}
 
-	//if (zend_hash_find(opthash, "parity", sizeof("parity"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = zend_hash_str_find(opthash, "parity", sizeof("parity") -1)) != NULL) {
 		data->parity = (int)dio_convert_to_long(tmpzval);
 	}
 
-	//if (zend_hash_find(opthash, "flow_control", sizeof("flow_control"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = zend_hash_str_find(opthash, "flow_control", sizeof("flow_control") -1)) != NULL) {
 		data->flow_control = (int)(dio_convert_to_long(tmpzval) ? 1 : 0);
 	}
 
-	//if (zend_hash_find(opthash, "is_canonical", sizeof("is_canonical"), (void **)&tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = zend_hash_str_find(opthash, "is_canonical", sizeof("is_canonical") -1)) != NULL) {
 		data->canonical = (int)(dio_convert_to_long(tmpzval) ? 1 : 0);
 	}
@@ -167,7 +156,6 @@ void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_s
 
 #ifdef DIO_HAS_FILEPERMS
 	/* This is the file mode flags used by open(). */
-	//if (php_stream_context_get_option(context, "dio", "perms", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = php_stream_context_get_option(context, "dio", "perms")) != NULL) {
 		data->perms = (int)dio_convert_to_long(tmpzval);
 		data->has_perms = 1;
@@ -177,21 +165,18 @@ void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_s
 #ifdef DIO_NONBLOCK
 	/* This sets the underlying stream to be blocking/non
 	   block (i.e. O_NONBLOCK) */
-	//if (php_stream_context_get_option(context, "dio", "is_blocking", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = php_stream_context_get_option(context, "dio", "is_blocking")) != NULL) {
 		data->is_blocking = dio_convert_to_long(tmpzval) ? 1 : 0;
 	}
 
 	/* This is the timeout value for reads in seconds.  Only one of
 	   timeout_secs or timeout_usecs need be defined to define a timeout. */
-	//if (php_stream_context_get_option(context, "dio", "timeout_secs", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = php_stream_context_get_option(context, "dio", "timeout_secs")) != NULL) {
 		data->timeout_sec = dio_convert_to_long(tmpzval);
 	}
 
 	/* This is the timeout value for reads in microseconds.  Only one of
 	   timeout_secs or timeout_usecs need be defined to define a timeout. */
-	//if (php_stream_context_get_option(context, "dio", "timeout_usecs", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = php_stream_context_get_option(context, "dio", "timeout_usecs")) != NULL) {
 		data->timeout_usec = dio_convert_to_long(tmpzval);
 	}
@@ -207,32 +192,26 @@ void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_s
 void dio_stream_context_get_serial_options(php_stream_context *context, php_dio_stream_data *data TSRMLS_DC) {
 	zval *tmpzval;
 
-	//if (php_stream_context_get_option(context, "dio", "data_rate", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = php_stream_context_get_option(context, "dio", "data_rate")) != NULL) {
 		data->data_rate = dio_convert_to_long(tmpzval);
 	}
 
-	//if (php_stream_context_get_option(context, "dio", "data_bits", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = php_stream_context_get_option(context, "dio", "data_bits")) != NULL) {
 		data->data_bits = (int)dio_convert_to_long(tmpzval);
 	}
 
-	//if (php_stream_context_get_option(context, "dio", "stop_bits", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = php_stream_context_get_option(context, "dio", "stop_bits")) != NULL) {
 		data->stop_bits = (int)dio_convert_to_long(tmpzval);
 	}
 
-	//if (php_stream_context_get_option(context, "dio", "parity", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = php_stream_context_get_option(context, "dio", "parity")) != NULL) {
 		data->parity = (int)dio_convert_to_long(tmpzval);
 	}
 
-	//if (php_stream_context_get_option(context, "dio", "flow_control", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = php_stream_context_get_option(context, "dio", "flow_control")) != NULL) {
 		data->flow_control = (int)(dio_convert_to_long(tmpzval) ? 1 : 0);
 	}
 
-	//if (php_stream_context_get_option(context, "dio", "is_canonical", &tmpzval) == SUCCESS && tmpzval && *tmpzval) {
 	if ((tmpzval = php_stream_context_get_option(context, "dio", "is_canonical")) != NULL) {
 		data->canonical = (int)(dio_convert_to_long(tmpzval) ? 1 : 0);
 	}
