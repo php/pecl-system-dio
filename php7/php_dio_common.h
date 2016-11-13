@@ -57,13 +57,13 @@ int dio_common_close(php_dio_stream_data *data);
 
 int dio_common_set_option(php_dio_stream_data *data, int option, int value, void *ptrparam);
 
-int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TSRMLS_DC);
+int dio_raw_open_stream(const char *filename, const char *mode, php_dio_stream_data *data TSRMLS_DC);
 
 int dio_serial_uninit(php_dio_stream_data *data);
 
 int dio_serial_purge(php_dio_stream_data *data);
 
-int dio_serial_open_stream(char *filename, const char *mode, php_dio_stream_data *data TSRMLS_DC);
+int dio_serial_open_stream(const char *filename, const char *mode, php_dio_stream_data *data TSRMLS_DC);
 
 #endif /* PHP_DIO_COMMON_H_ */
 

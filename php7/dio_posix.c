@@ -474,7 +474,7 @@ int dio_common_set_option(php_dio_stream_data *data, int option, int value, void
 /* {{{ dio_raw_open_stream
  * Opens the underlying stream.
  */
-int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TSRMLS_DC) {
+int dio_raw_open_stream(const char *filename, const char *mode, php_dio_stream_data *data TSRMLS_DC) {
 	php_dio_posix_stream_data *pdata = (php_dio_posix_stream_data*)data;
 	pdata->flags = dio_stream_mode_to_flags(mode);
 
@@ -632,7 +632,7 @@ int dio_serial_purge(php_dio_stream_data *data) {
 /* {{{ dio_serial_open_stream
  * Opens the underlying stream.
  */
-int dio_serial_open_stream(char *filename, const char *mode, php_dio_stream_data *data TSRMLS_DC) {
+int dio_serial_open_stream(const char *filename, const char *mode, php_dio_stream_data *data TSRMLS_DC) {
 	php_dio_posix_stream_data *pdata = (php_dio_posix_stream_data*)data;
 
 #ifdef O_NOCTTY

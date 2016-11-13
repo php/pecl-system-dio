@@ -131,7 +131,7 @@ static php_stream *dio_raw_fopen_wrapper(php_stream_wrapper *wrapper,
                                          php_stream_context *context STREAMS_DC TSRMLS_DC) {
 	php_dio_stream_data *data;
 	php_stream *stream;
-	char *filename;
+	const char *filename;
 
 	/* Check it was actually for us (not a corrupted function pointer
 	   somewhere!). */
@@ -292,7 +292,7 @@ static php_stream *dio_serial_fopen_wrapper(php_stream_wrapper *wrapper,
                                          php_stream_context *context STREAMS_DC TSRMLS_DC) {
 	php_dio_stream_data *data;
 	php_stream *stream;
-	char *filename;
+	const char *filename;
 
 	/* Check it was actually for us (not a corrupted function pointer
 	   somewhere!). */

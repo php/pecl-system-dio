@@ -56,13 +56,13 @@ void dio_init_stream_data(php_dio_stream_data *data) {
  * Returns as a long, the value of the zval regardless of its type.
  */
 long dio_convert_to_long(zval *val) {
-	zval *copyval;
+	zval copyval;
 	long  longval;
 
-	*copyval = *val;
-	convert_to_long(copyval);
-	longval = Z_LVAL_P(copyval);
-	zval_ptr_dtor(copyval);
+	copyval = *val;
+	convert_to_long(&copyval);
+	longval = Z_LVAL_P(&copyval);
+	zval_ptr_dtor(&copyval);
 
 	return longval;
 }
