@@ -35,8 +35,6 @@
 #define DIO_STREAM_TYPE_RAW    1
 #define DIO_STREAM_TYPE_SERIAL 2
 
-long dio_convert_to_long(zval *val);
-
 php_dio_stream_data * dio_create_stream_data(void);
 
 void dio_init_stream_data(php_dio_stream_data *data);
