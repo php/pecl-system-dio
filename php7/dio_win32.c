@@ -30,7 +30,7 @@
 /* {{{ dio_last_error_php_error
  * Generates a PHP error message based upon the last Windows error.
  */
-static void dio_last_error_php_error(int level, char * message TSRMLS_DC) {
+static void dio_last_error_php_error(int level, char * message) {
 	LPVOID msgbuf;
 	DWORD  msgbuflen;
 	char * errmsg;
@@ -68,7 +68,7 @@ static void dio_last_error_php_error(int level, char * message TSRMLS_DC) {
 	/* Allocate a buffer */
 	errmsg = emalloc(errmsglen);
 	if (!errmsg) {
-		php_error_docref(NULL TSRMLS_CC, E_ERROR, "Out of memory in dio_last_error_php_error()!");
+		php_error_docref(NULL, E_ERROR, "Out of memory in dio_last_error_php_error()!");
 		LocalFree(msgbuf);
 		return;
 	}
@@ -88,7 +88,7 @@ static void dio_last_error_php_error(int level, char * message TSRMLS_DC) {
 	errmsg = (char *)msgbuf;
 #endif
 
-	php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s[ERROR %d] %s", message, err, errmsg);
+	php_error_docref(NULL, E_WARNING, "%s[ERROR %d] %s", message, err, errmsg);
 
 	LocalFree(msgbuf);
 #ifdef UNICODE
@@ -505,7 +505,7 @@ int dio_common_set_option(php_dio_stream_data *data, int option, int value, void
 /* {{{ dio_raw_open_stream
  * Opens the underlying stream.
  */
-int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TSRMLS_DC) {
+int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data) {
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
 	DWORD err;
 
@@ -543,29 +543,29 @@ int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TS
 		err = GetLastError();
 		switch (err) {
 			case ERROR_FILE_EXISTS:
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "File exists!");
+				php_error_docref(NULL, E_WARNING, "File exists!");
 				return 0;
 
 			case ERROR_FILE_NOT_FOUND:
 				/* ERROR_FILE_NOT_FOUND with TRUNCATE_EXISTING means that
 				 * the file doesn't exist so now try to create it. */
 				if (TRUNCATE_EXISTING == wdata->creation_disposition) {
-					php_error_docref(NULL TSRMLS_CC, E_NOTICE, "File does not exist, creating new file!");
+					php_error_docref(NULL, E_NOTICE, "File does not exist, creating new file!");
 
 					wdata->handle = CreateFile(filename, wdata->desired_access, 0,
 								NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 					if (INVALID_HANDLE_VALUE == wdata->handle) {
-						dio_last_error_php_error(E_WARNING, "CreateFile() failed:" TSRMLS_CC);
+						dio_last_error_php_error(E_WARNING, "CreateFile() failed:");
 						return 0;
 					}
 				} else {
-					php_error_docref(NULL TSRMLS_CC, E_WARNING, "File not found!");
+					php_error_docref(NULL, E_WARNING, "File not found!");
 					return 0;
 				}
 				break;
 
 			default:
-				dio_last_error_php_error(E_WARNING, "CreateFile() failed:" TSRMLS_CC);
+				dio_last_error_php_error(E_WARNING, "CreateFile() failed:");
 				return 0;
 		}
 	}
@@ -584,33 +584,33 @@ int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data TS
 /* {{{ dio_serial_init
  * Initialises the serial port
  */
-static int dio_serial_init(php_dio_stream_data *data TSRMLS_DC) {
+static int dio_serial_init(php_dio_stream_data *data) {
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
 	DWORD rate_def, data_bits_def, stop_bits_def, parity_def;
 	DCB dcb;
 
 	if (!dio_data_rate_to_define(data->data_rate, &rate_def)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid data_rate value (%d)", data->data_rate);
+		php_error_docref(NULL, E_WARNING, "invalid data_rate value (%d)", data->data_rate);
 		return 0;
 	}
 
 	if (!dio_data_bits_to_define(data->data_bits, &data_bits_def)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid data_bits value (%d)", data->data_bits);
+		php_error_docref(NULL, E_WARNING, "invalid data_bits value (%d)", data->data_bits);
 		return 0;
 	}
 
 	if (!dio_stop_bits_to_define(data->stop_bits, &stop_bits_def)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid stop_bits value (%d)", data->stop_bits);
+		php_error_docref(NULL, E_WARNING, "invalid stop_bits value (%d)", data->stop_bits);
 		return 0;
 	}
 
 	if (!dio_parity_to_define(data->parity, &parity_def)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid parity value (%d)", data->parity);
+		php_error_docref(NULL, E_WARNING, "invalid parity value (%d)", data->parity);
 		return 0;
 	}
 
 	if (!GetCommState(wdata->handle, &(wdata->olddcb))) {
-		dio_last_error_php_error(E_WARNING, "GetCommState() failed:" TSRMLS_CC);
+		dio_last_error_php_error(E_WARNING, "GetCommState() failed:");
 		return 0;
 	}
 
@@ -646,7 +646,7 @@ static int dio_serial_init(php_dio_stream_data *data TSRMLS_DC) {
 	}
 
 	if (!SetCommState(wdata->handle, &dcb)) {
-		dio_last_error_php_error(E_WARNING, "SetCommState() failed:" TSRMLS_CC);
+		dio_last_error_php_error(E_WARNING, "SetCommState() failed:");
 		return 0;
 	}
 
@@ -698,23 +698,23 @@ int dio_serial_purge(php_dio_stream_data *data) {
 /* {{{ dio_serial_open_stream
  * Opens the underlying stream.
  */
-int dio_serial_open_stream(char *filename, char *mode, php_dio_stream_data *data TSRMLS_DC) {
+int dio_serial_open_stream(char *filename, char *mode, php_dio_stream_data *data) {
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
 	COMMTIMEOUTS cto = { 0, 0, 0, 0, 0 };
 
-	php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Opening \"%s\" as a serial port (mode=\"%s\").", filename, mode);
+	php_error_docref(NULL, E_NOTICE, "Opening \"%s\" as a serial port (mode=\"%s\").", filename, mode);
 
 	if (*mode != 'r') {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "You must open serial ports in read or read/write mode!");
+		php_error_docref(NULL, E_WARNING, "You must open serial ports in read or read/write mode!");
 		return 0;
 	}
 
-	if (!dio_raw_open_stream(filename, mode, data TSRMLS_CC)) {
+	if (!dio_raw_open_stream(filename, mode, data)) {
 		return 0;
 	}
 
 	if (!GetCommTimeouts(wdata->handle, &(wdata->oldcto))) {
-		dio_last_error_php_error(E_WARNING, "GetCommTimeouts() failed (Not a comm port?):" TSRMLS_CC);
+		dio_last_error_php_error(E_WARNING, "GetCommTimeouts() failed (Not a comm port?):");
 		CloseHandle(wdata->handle);
 		return 0;
 	}
@@ -735,12 +735,12 @@ int dio_serial_open_stream(char *filename, char *mode, php_dio_stream_data *data
 	}
 
 	if (!SetCommTimeouts(wdata->handle, &cto)) {
-		dio_last_error_php_error(E_WARNING, "SetCommTimeouts() failed:" TSRMLS_CC);
+		dio_last_error_php_error(E_WARNING, "SetCommTimeouts() failed:");
 		CloseHandle(wdata->handle);
 		return 0;
 	}
 
-	if (!dio_serial_init(data TSRMLS_CC)) {
+	if (!dio_serial_init(data)) {
 		CloseHandle(wdata->handle);
 		return 0;
 	}

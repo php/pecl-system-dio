@@ -36,7 +36,7 @@
 /* {{{ dio_stream_write
  * Write to the stream
  */
-static size_t dio_stream_write(php_stream *stream, const char *buf, size_t count TSRMLS_DC)
+static size_t dio_stream_write(php_stream *stream, const char *buf, size_t count)
 {
 	return dio_common_write((php_dio_stream_data*)stream->abstract, buf, count);
 }
@@ -45,7 +45,7 @@ static size_t dio_stream_write(php_stream *stream, const char *buf, size_t count
 /* {{{ dio_stream_read
  * Read from the stream
  */
-static size_t dio_stream_read(php_stream *stream, char *buf, size_t count TSRMLS_DC)
+static size_t dio_stream_read(php_stream *stream, char *buf, size_t count)
 {
 	php_dio_stream_data* data = (php_dio_stream_data*)stream->abstract;
 	size_t bytes = dio_common_read(data, buf, count);
@@ -58,7 +58,7 @@ static size_t dio_stream_read(php_stream *stream, char *buf, size_t count TSRMLS
 /* {{{ dio_stream_flush
  * Flush the stream.  For raw streams this does nothing.
  */
-static int dio_stream_flush(php_stream *stream TSRMLS_DC)
+static int dio_stream_flush(php_stream *stream)
 {
 	return 1;
 }
@@ -67,7 +67,7 @@ static int dio_stream_flush(php_stream *stream TSRMLS_DC)
 /* {{{ dio_stream_close
  * Close the stream
  */
-static int dio_stream_close(php_stream *stream, int close_handle TSRMLS_DC)
+static int dio_stream_close(php_stream *stream, int close_handle)
 {
 	php_dio_stream_data *abstract = (php_dio_stream_data*)stream->abstract;
 
@@ -83,7 +83,7 @@ static int dio_stream_close(php_stream *stream, int close_handle TSRMLS_DC)
 /* {{{ dio_stream_set_option
  * Set the stream options.
  */
-static int dio_stream_set_option(php_stream *stream, int option, int value, void *ptrparam TSRMLS_DC)
+static int dio_stream_set_option(php_stream *stream, int option, int value, void *ptrparam)
 {
 	php_dio_stream_data *abstract = (php_dio_stream_data*)stream->abstract;
 
@@ -128,7 +128,7 @@ php_stream_ops dio_raw_stream_ops = {
 static php_stream *dio_raw_fopen_wrapper(php_stream_wrapper *wrapper,
                                          const char *path, const char *mode,
                                          int options, zend_string **opened_path,
-                                         php_stream_context *context STREAMS_DC TSRMLS_DC) {
+                                         php_stream_context *context STREAMS_DC) {
 	php_dio_stream_data *data;
 	php_stream *stream;
 	const char *filename;
@@ -143,7 +143,7 @@ static php_stream *dio_raw_fopen_wrapper(php_stream_wrapper *wrapper,
 	filename = path + sizeof(DIO_RAW_STREAM_PROTOCOL) - 1;
 
 	/* Check we can actually access it. */
-	if (php_check_open_basedir(filename TSRMLS_CC) || DIO_SAFE_MODE_CHECK(filename, mode)) {
+	if (php_check_open_basedir(filename) || DIO_SAFE_MODE_CHECK(filename, mode)) {
 		return NULL;
 	}
 
@@ -152,11 +152,11 @@ static php_stream *dio_raw_fopen_wrapper(php_stream_wrapper *wrapper,
 
 	/* Parse the context. */
 	if (context) {
-		dio_stream_context_get_basic_options(context, data TSRMLS_CC);
+		dio_stream_context_get_basic_options(context, data);
 	}
 
 	/* Try and open a raw stream. */
-	if (!dio_raw_open_stream(filename, mode, data TSRMLS_CC)) {
+	if (!dio_raw_open_stream(filename, mode, data)) {
 		return NULL;
 	}
 
@@ -199,7 +199,7 @@ PHP_FUNCTION(dio_raw) {
 	char *mode;
 	int   mode_len;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|z", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss|z", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
 		RETURN_FALSE;
 	}
 
@@ -209,7 +209,7 @@ PHP_FUNCTION(dio_raw) {
 	}
 
 	/* Check we can actually access the file. */
-	if (php_check_open_basedir(filename TSRMLS_CC) || DIO_SAFE_MODE_CHECK(filename, mode)) {
+	if (php_check_open_basedir(filename) || DIO_SAFE_MODE_CHECK(filename, mode)) {
 		RETURN_FALSE;
 	}
 
@@ -217,11 +217,11 @@ PHP_FUNCTION(dio_raw) {
 	data->stream_type = DIO_STREAM_TYPE_RAW;
 
 	if (options) {
-		dio_assoc_array_get_basic_options(options, data TSRMLS_CC);
+		dio_assoc_array_get_basic_options(options, data);
 	}
 
 	/* Try and open a raw stream. */
-	if (dio_raw_open_stream(filename, mode, data TSRMLS_CC)) {
+	if (dio_raw_open_stream(filename, mode, data)) {
 		stream = php_stream_alloc(&dio_raw_stream_ops, data, 0, mode);
 		if (!stream) {
 			(void) dio_common_close(data);
@@ -244,7 +244,7 @@ PHP_FUNCTION(dio_raw) {
  * stream, if it is write only it flushes the write, otherwise it flushes
  * both.
  */
-static int dio_serial_stream_flush(php_stream *stream TSRMLS_DC)
+static int dio_serial_stream_flush(php_stream *stream)
 {
 	return dio_serial_purge((php_dio_stream_data*)stream->abstract);
 }
@@ -254,7 +254,7 @@ static int dio_serial_stream_flush(php_stream *stream TSRMLS_DC)
  * Close the stream.  Restores the serial settings to their value before
  * the stream was open.
  */
-static int dio_serial_stream_close(php_stream *stream, int close_handle TSRMLS_DC)
+static int dio_serial_stream_close(php_stream *stream, int close_handle)
 {
 	php_dio_stream_data *abstract = (php_dio_stream_data*)stream->abstract;
 
@@ -289,7 +289,7 @@ php_stream_ops dio_serial_stream_ops = {
 static php_stream *dio_serial_fopen_wrapper(php_stream_wrapper *wrapper,
                                          const char *path, const char *mode,
                                          int options, zend_string **opened_path,
-                                         php_stream_context *context STREAMS_DC TSRMLS_DC) {
+                                         php_stream_context *context STREAMS_DC) {
 	php_dio_stream_data *data;
 	php_stream *stream;
 	const char *filename;
@@ -304,7 +304,7 @@ static php_stream *dio_serial_fopen_wrapper(php_stream_wrapper *wrapper,
 	filename = path + sizeof(DIO_SERIAL_STREAM_PROTOCOL) - 1;
 
 	/* Check we can actually access it. */
-	if (php_check_open_basedir(filename TSRMLS_CC) || DIO_SAFE_MODE_CHECK(filename, mode)) {
+	if (php_check_open_basedir(filename) || DIO_SAFE_MODE_CHECK(filename, mode)) {
 		return NULL;
 	}
 
@@ -313,12 +313,12 @@ static php_stream *dio_serial_fopen_wrapper(php_stream_wrapper *wrapper,
 
 	/* Parse the context. */
 	if (context) {
-		dio_stream_context_get_basic_options(context, data TSRMLS_CC);
-		dio_stream_context_get_serial_options(context, data TSRMLS_CC);
+		dio_stream_context_get_basic_options(context, data);
+		dio_stream_context_get_serial_options(context, data);
 	}
 
 	/* Try and open a serial stream. */
-	if (!dio_serial_open_stream(filename, mode, data TSRMLS_CC)) {
+	if (!dio_serial_open_stream(filename, mode, data)) {
 		return NULL;
 	}
 
@@ -359,18 +359,18 @@ PHP_FUNCTION(dio_serial) {
 	char *mode;
 	int   mode_len;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|z", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss|z", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
 		RETURN_FALSE;
 	}
 
 	/* Check the third argument is an array. */
 	if (options && (Z_TYPE_P(options) != IS_ARRAY)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING,"dio_serial, the third argument should be an array of options");
+		php_error_docref(NULL, E_WARNING,"dio_serial, the third argument should be an array of options");
 		RETURN_FALSE;
 	}
 
 	/* Check we can actually access the file. */
-	if (php_check_open_basedir(filename TSRMLS_CC) || DIO_SAFE_MODE_CHECK(filename, mode)) {
+	if (php_check_open_basedir(filename) || DIO_SAFE_MODE_CHECK(filename, mode)) {
 		RETURN_FALSE;
 	}
 
@@ -378,12 +378,12 @@ PHP_FUNCTION(dio_serial) {
 	data->stream_type = DIO_STREAM_TYPE_SERIAL;
 
 	if (options) {
-		dio_assoc_array_get_basic_options(options, data TSRMLS_CC);
-		dio_assoc_array_get_serial_options(options, data TSRMLS_CC);
+		dio_assoc_array_get_basic_options(options, data);
+		dio_assoc_array_get_serial_options(options, data);
 	}
 
 	/* Try and open a serial stream. */
-	if (dio_serial_open_stream(filename, mode, data TSRMLS_CC)) {
+	if (dio_serial_open_stream(filename, mode, data)) {
 		stream = php_stream_alloc(&dio_serial_stream_ops, data, 0, mode);
 		if (!stream) {
 			efree(data);

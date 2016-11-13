@@ -39,13 +39,13 @@ php_dio_stream_data * dio_create_stream_data(void);
 
 void dio_init_stream_data(php_dio_stream_data *data);
 
-void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data TSRMLS_DC);
+void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data);
 
-void dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data TSRMLS_DC);
+void dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data);
 
-void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_stream_data *data TSRMLS_DC);
+void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_stream_data *data);
 
-void dio_stream_context_get_serial_options(php_stream_context *context, php_dio_stream_data *data TSRMLS_DC);
+void dio_stream_context_get_serial_options(php_stream_context *context, php_dio_stream_data *data);
 
 size_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count);
 
@@ -55,13 +55,13 @@ int dio_common_close(php_dio_stream_data *data);
 
 int dio_common_set_option(php_dio_stream_data *data, int option, int value, void *ptrparam);
 
-int dio_raw_open_stream(const char *filename, const char *mode, php_dio_stream_data *data TSRMLS_DC);
+int dio_raw_open_stream(const char *filename, const char *mode, php_dio_stream_data *data);
 
 int dio_serial_uninit(php_dio_stream_data *data);
 
 int dio_serial_purge(php_dio_stream_data *data);
 
-int dio_serial_open_stream(const char *filename, const char *mode, php_dio_stream_data *data TSRMLS_DC);
+int dio_serial_open_stream(const char *filename, const char *mode, php_dio_stream_data *data);
 
 #endif /* PHP_DIO_COMMON_H_ */
 

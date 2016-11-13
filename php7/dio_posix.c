@@ -474,7 +474,7 @@ int dio_common_set_option(php_dio_stream_data *data, int option, int value, void
 /* {{{ dio_raw_open_stream
  * Opens the underlying stream.
  */
-int dio_raw_open_stream(const char *filename, const char *mode, php_dio_stream_data *data TSRMLS_DC) {
+int dio_raw_open_stream(const char *filename, const char *mode, php_dio_stream_data *data) {
 	php_dio_posix_stream_data *pdata = (php_dio_posix_stream_data*)data;
 	pdata->flags = dio_stream_mode_to_flags(mode);
 
@@ -498,7 +498,7 @@ int dio_raw_open_stream(const char *filename, const char *mode, php_dio_stream_d
 	if (pdata->fd < 0) {
 		switch (errno) {
 			case EEXIST:
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "File exists!");
+				php_error_docref(NULL, E_WARNING, "File exists!");
 				return 0;
 			default:
 				return 0;
@@ -512,36 +512,36 @@ int dio_raw_open_stream(const char *filename, const char *mode, php_dio_stream_d
 /* {{{ dio_serial_init
  * Initialises the serial settings storing the original settings before hand.
  */
-static int dio_serial_init(php_dio_stream_data *data TSRMLS_DC) {
+static int dio_serial_init(php_dio_stream_data *data) {
 	php_dio_posix_stream_data *pdata = (php_dio_posix_stream_data*)data;
 	int ret = 0, data_bits_def, stop_bits_def, parity_def;
 	struct termios tio;
 	speed_t rate_def;
 
 	if (!dio_data_rate_to_define(data->data_rate, &rate_def)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid data_rate value (%ld)", data->data_rate);
+		php_error_docref(NULL, E_WARNING, "invalid data_rate value (%ld)", data->data_rate);
 		return 0;
 	}
 
 	if (!dio_data_bits_to_define(data->data_bits, &data_bits_def)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid data_bits value (%d)", data->data_bits);
+		php_error_docref(NULL, E_WARNING, "invalid data_bits value (%d)", data->data_bits);
 		return 0;
 	}
 
 	if (!dio_stop_bits_to_define(data->stop_bits, &stop_bits_def)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid stop_bits value (%d)", data->stop_bits);
+		php_error_docref(NULL, E_WARNING, "invalid stop_bits value (%d)", data->stop_bits);
 		return 0;
 	}
 
 	if (!dio_parity_to_define(data->parity, &parity_def)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "invalid parity value (%d)", data->parity);
+		php_error_docref(NULL, E_WARNING, "invalid parity value (%d)", data->parity);
 		return 0;
 	}
 
 	ret = tcgetattr(pdata->fd, &(pdata->oldtio));
 	if (ret < 0) {
 		if ((errno == ENOTTY) || (errno == ENODEV)) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Not a serial port or terminal!");
+			php_error_docref(NULL, E_WARNING, "Not a serial port or terminal!");
 		}
 		return 0;
 	}
@@ -632,7 +632,7 @@ int dio_serial_purge(php_dio_stream_data *data) {
 /* {{{ dio_serial_open_stream
  * Opens the underlying stream.
  */
-int dio_serial_open_stream(const char *filename, const char *mode, php_dio_stream_data *data TSRMLS_DC) {
+int dio_serial_open_stream(const char *filename, const char *mode, php_dio_stream_data *data) {
 	php_dio_posix_stream_data *pdata = (php_dio_posix_stream_data*)data;
 
 #ifdef O_NOCTTY
@@ -640,11 +640,11 @@ int dio_serial_open_stream(const char *filename, const char *mode, php_dio_strea
 	pdata->flags |= O_NOCTTY;
 #endif
 
-	if (!dio_raw_open_stream(filename, mode, data TSRMLS_CC)) {
+	if (!dio_raw_open_stream(filename, mode, data)) {
 		return 0;
 	}
 
-	if (!dio_serial_init(data TSRMLS_CC)) {
+	if (!dio_serial_init(data)) {
 		close(pdata->fd);
 		return 0;
 	}

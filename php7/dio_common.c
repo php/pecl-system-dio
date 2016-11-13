@@ -56,7 +56,7 @@ void dio_init_stream_data(php_dio_stream_data *data) {
 /* {{{ dio_assoc_array_get_basic_options
  * Retrieves the basic open option values from an associative array
  */
-void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data TSRMLS_DC) {
+void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data) {
 #if defined(DIO_HAS_FILEPERMS) || defined(DIO_NONBLOCK)
 	zval      *tmpzval;
 	HashTable *opthash;
@@ -99,7 +99,7 @@ void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data 
 /* {{{ dio_assoc_array_get_serial_options
  * Retrieves the serial open option values from an associative array
  */
-void dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data TSRMLS_DC) {
+void dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data) {
 	zval *tmpzval;
 	HashTable *opthash;
 
@@ -134,7 +134,7 @@ void dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data
 /* {{{ dio_stream_context_get_raw_options
  * Extracts the option values for dio.raw mode from a context
  */
-void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_stream_data *data TSRMLS_DC) {
+void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_stream_data *data) {
 #if defined(DIO_HAS_FILEPERMS) || defined(DIO_NONBLOCK)
 	zval *tmpzval;
 #endif
@@ -174,7 +174,7 @@ void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_s
 /* {{{ dio_stream_context_get_serial_options
  * Extracts the option values for dio.serial mode from a context
  */
-void dio_stream_context_get_serial_options(php_stream_context *context, php_dio_stream_data *data TSRMLS_DC) {
+void dio_stream_context_get_serial_options(php_stream_context *context, php_dio_stream_data *data) {
 	zval *tmpzval;
 
 	if ((tmpzval = php_stream_context_get_option(context, "dio", "data_rate")) != NULL) {
