@@ -338,7 +338,7 @@ PHP_FUNCTION(dio_seek)
 		RETURN_FALSE;
 	}
 
-	RETURN_LONG(lseek(f->fd, offset, whence));
+	RETURN_LONG(zend_lseek(f->fd, offset, whence));
 }
 /* }}} */
 
