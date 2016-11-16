@@ -4,6 +4,20 @@
 ARG_ENABLE("dio", "Enable the direct I/O support", "no");
 
 if (PHP_DIO != "no") {
+	var dll = get_define('PHPDLL');
+	var old_conf_dir = configure_module_dirname;
+
+	if (null != dll.match(/^php5/)) {
+		configure_module_dirname = configure_module_dirname + "\\php5";
+	} else if (null != dll.match(/^php7/)) {
+		configure_module_dirname = configure_module_dirname + "\\php7";
+	} else {
+		ERROR("Cannot match any known PHP version with '" + dll + "'");
+	}
+
 	EXTENSION("dio", "dio.c dio_common.c dio_win32.c dio_stream_wrappers.c");
+	configure_module_dirname = old_conf_dir;
+
 	AC_DEFINE('HAVE_DIO', 1, 'dio support');
 }
+
