@@ -128,7 +128,7 @@ php_stream_ops dio_raw_stream_ops = {
 static php_stream *dio_raw_fopen_wrapper(php_stream_wrapper *wrapper,
                                          const char *path, const char *mode,
                                          int options, zend_string **opened_path,
-                                         php_stream_context *context STREAMS_DC TSRMLS_DC) {
+                                         php_stream_context *context STREAMS_DC) {
 	php_dio_stream_data *data;
 	php_stream *stream;
 	const char *filename;
