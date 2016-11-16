@@ -505,7 +505,7 @@ int dio_common_set_option(php_dio_stream_data *data, int option, int value, void
 /* {{{ dio_raw_open_stream
  * Opens the underlying stream.
  */
-int dio_raw_open_stream(char *filename, char *mode, php_dio_stream_data *data) {
+int dio_raw_open_stream(const char *filename, const char *mode, php_dio_stream_data *data) {
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
 	DWORD err;
 
@@ -698,7 +698,7 @@ int dio_serial_purge(php_dio_stream_data *data) {
 /* {{{ dio_serial_open_stream
  * Opens the underlying stream.
  */
-int dio_serial_open_stream(char *filename, char *mode, php_dio_stream_data *data) {
+int dio_serial_open_stream(const char *filename, const char *mode, php_dio_stream_data *data) {
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
 	COMMTIMEOUTS cto = { 0, 0, 0, 0, 0 };
 
