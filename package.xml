@@ -22,6 +22,12 @@ more than adequate.
   <name>Melanie Rhianna Lewis</name>
   <user>cyberspice</user>
   <email>cyberspice@php.net</email>
+  <active>no</active>
+ </lead>
+ <lead>
+  <name>Remi Collet</name>
+  <user>remi</user>
+  <email>remi@php.net</email>
   <active>yes</active>
  </lead>
  <date>2016-11-13</date>
