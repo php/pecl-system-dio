@@ -1,7 +1,3 @@
-dnl
-dnl $Id$
-dnl 
-
 PHP_ARG_ENABLE(dio, whether to enable direct I/O support,
 [  --enable-dio            Enable direct I/O support])
 
@@ -33,4 +29,3 @@ if test "$PHP_DIO" != "no"; then
   PHP_ADD_BUILD_DIR($abs_builddir/$subdir, 1)
   PHP_ADD_INCLUDE([$ext_srcdir/$subdir])
 fi
-
