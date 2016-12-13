@@ -195,9 +195,9 @@ PHP_FUNCTION(dio_raw) {
 	php_stream *stream;
 
 	char *filename;
-	int   filename_len;
+	size_t filename_len;
 	char *mode;
-	int   mode_len;
+	size_t mode_len;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss|z", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
 		RETURN_FALSE;
@@ -355,9 +355,9 @@ PHP_FUNCTION(dio_serial) {
 	php_stream *stream;
 
 	char *filename;
-	int   filename_len;
+	size_t filename_len;
 	char *mode;
-	int   mode_len;
+	size_t mode_len;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss|z", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
 		RETURN_FALSE;
