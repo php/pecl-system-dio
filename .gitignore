@@ -10,9 +10,11 @@ configure
 configure.in
 install-sh
 ltmain.sh
+ltmain.sh.backup
 missing
 mkinstalldirs
 run-tests.php
+dio-*.tgz
 
 .deps
 Makefile
