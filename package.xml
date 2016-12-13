@@ -30,10 +30,9 @@ more than adequate.
   <email>remi@php.net</email>
   <active>yes</active>
  </lead>
- <date>2016-11-13</date>
- <time>15:25:00</time>
+ <date>2016-12-13</date>
  <version>
-  <release>0.0.8dev</release>
+  <release>0.0.8</release>
   <api>0.0.7</api>
  </version>
  <stability>
@@ -42,7 +41,8 @@ more than adequate.
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- PHP 7 compatible version
+- PHP 5 and PHP 7 compatible version
+- add more baudrates (Michael Heimpold)
  </notes>
  <contents>
   <dir name="/">
@@ -92,14 +92,99 @@ more than adequate.
  <dependencies>
   <required>
    <php>
-    <min>5.2</min>
+    <min>5.3.3</min>
    </php>
    <pearinstaller>
-    <min>1.4.0b1</min>
+    <min>1.9.4</min>
    </pearinstaller>
   </required>
  </dependencies>
  <providesextension>dio</providesextension>
  <extsrcrelease />
+ <changelog>
+  <release>
+   <date>2010-02-10</date>
+   <version>
+    <release>0.0.4RC4</release>
+    <api>0.0.4</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <license uri="http://www.php.net/license">PHP</license>
+   <notes>
+package.xml added to support installation using pear installer
+Packaged so it can be used.
+   </notes>
+  </release>
+  <release>
+   <date>2012-02-17</date>
+   <version>
+    <release>0.0.5</release>
+    <api>0.0.5</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <license uri="http://www.php.net/license">PHP</license>
+   <notes>
+Added dio_fdopen() and dio_dup().
+
+dio_fdopen() returns a dio resource for an integer UNIX style file descriptor.
+
+dio_dup() duplicates an existing stream.
+   </notes>
+  </release>
+  <release>
+   <date>2012-06-30</date>
+   <version>
+    <release>0.0.6</release>
+    <api>0.0.6</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <license uri="http://www.php.net/license">PHP</license>
+   <notes>
+Fixes for bugs #61989 (PECL package &quot;dio&quot; will not compile against PHP-5.4.3)
+and #62188 (Possible typo in errno check in dio_fdopen()).
+   </notes>
+  </release>
+  <release>
+   <date>2013-02-19</date>
+   <version>
+    <release>0.0.7</release>
+    <api>0.0.7</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <license uri="http://www.php.net/license">PHP</license>
+   <notes>
+Added far better windows error reporting. Warnings now raised when Win32 API
+calls return errors. The warnings include the underlying Windows error
+message.
+   </notes>
+  </release>
+  <release>
+   <date>2016-12-13</date>
+   <version>
+    <release>0.0.8</release>
+    <api>0.0.7</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <license uri="http://www.php.net/license">PHP</license>
+   <notes>
+- PHP 7 compatible version
+   </notes>
+  </release>
+ </changelog>
 </package>
 

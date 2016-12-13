@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 5                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2004 The PHP Group                                |
+   | Copyright (c) 1997-2016 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.0 of the PHP license,       |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -24,7 +24,7 @@
 extern zend_module_entry dio_module_entry;
 #define phpext_dio_ptr &dio_module_entry
 
-#define PHP_DIO_VERSION "0.0.8-dev"
+#define PHP_DIO_VERSION "0.0.8"
 
 /* Standard module functions. */
 PHP_MINIT_FUNCTION(dio);
