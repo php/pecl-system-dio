@@ -214,6 +214,7 @@ PHP_FUNCTION(dio_read)
 	data[res] = 0;
 
 	RETURN_STRINGL(data, res);
+	efree(data);
 }
 /* }}} */
 
