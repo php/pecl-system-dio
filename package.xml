@@ -41,7 +41,7 @@ more than adequate.
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
--
+- fix memory leak in dio_read (Dawid Zamirski)
  </notes>
  <contents>
   <dir name="/">
