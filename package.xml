@@ -30,9 +30,9 @@ more than adequate.
   <email>cyberspice@php.net</email>
   <active>no</active>
  </lead>
- <date>2016-12-13</date>
+ <date>2017-03-25</date>
  <version>
-  <release>0.1.0dev</release>
+  <release>0.1.0</release>
   <api>0.0.7</api>
  </version>
  <stability>
@@ -41,7 +41,8 @@ more than adequate.
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- fix memory leak in dio_read (Dawid Zamirski)
+- Fixed memory leak in dio_read (Dawid Zamirski)
+- Fixed Bug #74209 dio_stat - appended nulls (Remi)
  </notes>
  <contents>
   <dir name="/">
@@ -49,6 +50,7 @@ more than adequate.
     <file name="001.phpt" role="test" />
     <file name="002.phpt" role="test" />
     <file name="003.phpt" role="test" />
+    <file name="004.phpt" role="test" />
     <file name="dio_raw_stream_001.phpt" role="test" />
     <file name="dio_raw_stream_002.phpt" role="test" />
     <file name="dio_raw_stream_003.phpt" role="test" />
