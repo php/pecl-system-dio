@@ -280,7 +280,7 @@ PHP_FUNCTION(dio_truncate)
 /* }}} */
 #endif
 
-#define ADD_FIELD(f, v) add_assoc_long_ex(return_value, (f), sizeof(f), v);
+#define ADD_FIELD(f, v) add_assoc_long_ex(return_value, (f), sizeof(f)-1, v);
 
 /* {{{ proto array dio_stat(resource fd)
    Get stat information about the file descriptor fd */
