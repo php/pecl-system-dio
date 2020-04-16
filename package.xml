@@ -32,7 +32,7 @@ more than adequate.
  </lead>
  <date>2017-03-25</date>
  <version>
-  <release>0.1.0</release>
+  <release>0.1.1dev</release>
   <api>0.0.7</api>
  </version>
  <stability>
@@ -41,8 +41,7 @@ more than adequate.
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- Fixed memory leak in dio_read (Dawid Zamirski)
-- Fixed Bug #74209 dio_stat - appended nulls (Remi)
+-
  </notes>
  <contents>
   <dir name="/">
@@ -199,6 +198,22 @@ message.
    <license uri="http://www.php.net/license">PHP</license>
    <notes>
 - fix segfault in dio_raw (php 7, big endian)
+   </notes>
+  </release>
+  <release>
+   <date>2017-03-25</date>
+   <version>
+    <release>0.1.0</release>
+    <api>0.0.7</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <license uri="http://www.php.net/license">PHP</license>
+   <notes>
+- Fixed memory leak in dio_read (Dawid Zamirski)
+- Fixed Bug #74209 dio_stat - appended nulls (Remi)
    </notes>
   </release>
  </changelog>
