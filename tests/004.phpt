@@ -1,7 +1,10 @@
 --TEST--
 Test dio_stat
 --SKIPIF--
-<?php if (!extension_loaded("dio")) print "skip"; ?>
+<?php
+if (!extension_loaded("dio")) print "skip";
+if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') print "skip Linux only";
+?>
 --FILE--
 <?php 
 	$iswin = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN'); 
