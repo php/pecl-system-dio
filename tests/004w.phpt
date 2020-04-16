@@ -34,9 +34,9 @@ array(11) {
   string(4) "size"
   [8]=>
   string(5) "atime"
-  [11]=>
+  [9]=>
   string(5) "mtime"
-  [12]=>
+  [10]=>
   string(5) "ctime"
 }
 Done
