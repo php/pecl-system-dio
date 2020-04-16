@@ -3,11 +3,11 @@ Test dio_stat
 --SKIPIF--
 <?php
 if (!extension_loaded("dio")) print "skip";
-if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') print "skip Linux only";
+if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN') print "skip Windows only";
 ?>
 --FILE--
 <?php 
-	$filename = "/dev/null";
+	$filename = "NUL";
 	
 	$f = dio_open($filename, O_RDONLY);
 	var_dump(array_keys(dio_stat($f)));
@@ -15,7 +15,7 @@ if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') print "skip Linux only";
 ?>
 Done
 --EXPECT--
-array(13) {
+array(11) {
   [0]=>
   string(6) "device"
   [1]=>
@@ -33,10 +33,6 @@ array(13) {
   [7]=>
   string(4) "size"
   [8]=>
-  string(10) "block_size"
-  [9]=>
-  string(6) "blocks"
-  [10]=>
   string(5) "atime"
   [11]=>
   string(5) "mtime"
