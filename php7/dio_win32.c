@@ -360,7 +360,7 @@ static ssize_t dio_com_read(php_dio_stream_data *data, const char *buf, size_t c
 #if PHP_VERSION_ID < 70400
 static size_t dio_canonical_read(php_dio_win32_stream_data *wdata, const char *buf, size_t count) {
 #else
-static size_t dio_canonical_read(php_dio_win32_stream_data *wdata, const char *buf, size_t count) {
+static ssize_t dio_canonical_read(php_dio_win32_stream_data *wdata, const char *buf, size_t count) {
 #endif
 	php_dio_win32_canon_data *canon_data = wdata->canon_data;
 	size_t total = 0;
