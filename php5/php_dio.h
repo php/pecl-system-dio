@@ -24,7 +24,7 @@
 extern zend_module_entry dio_module_entry;
 #define phpext_dio_ptr &dio_module_entry
 
-#define PHP_DIO_VERSION "0.1.1-dev"
+#define PHP_DIO_VERSION "0.2.0"
 
 /* Standard module functions. */
 PHP_MINIT_FUNCTION(dio);

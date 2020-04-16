@@ -30,9 +30,9 @@ more than adequate.
   <email>cyberspice@php.net</email>
   <active>no</active>
  </lead>
- <date>2017-03-25</date>
+ <date>2020-04-16</date>
  <version>
-  <release>0.1.1dev</release>
+  <release>0.2.0</release>
   <api>0.0.7</api>
  </version>
  <stability>
