@@ -30,9 +30,9 @@ more than adequate.
   <email>cyberspice@php.net</email>
   <active>no</active>
  </lead>
- <date>2020-04-16</date>
+ <date>2022-01-25</date>
  <version>
-  <release>0.2.0</release>
+  <release>0.2.1</release>
   <api>0.0.7</api>
  </version>
  <stability>
@@ -41,7 +41,7 @@ more than adequate.
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- fix stream API for PHP 7.4+
+- fix windows build
  </notes>
  <contents>
   <dir name="/">
@@ -215,6 +215,21 @@ message.
    <notes>
 - Fixed memory leak in dio_read (Dawid Zamirski)
 - Fixed Bug #74209 dio_stat - appended nulls (Remi)
+   </notes>
+  </release>
+  <release>
+   <date>2020-04-16</date>
+   <version>
+    <release>0.2.0</release>
+    <api>0.0.7</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <license uri="http://www.php.net/license">PHP</license>
+   <notes>
+- fix stream API for PHP 7.4+
    </notes>
   </release>
  </changelog>
