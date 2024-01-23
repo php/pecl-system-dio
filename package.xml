@@ -30,9 +30,9 @@ more than adequate.
   <email>cyberspice@php.net</email>
   <active>no</active>
  </lead>
- <date>2022-01-25</date>
+ <date>2024-01-23</date>
  <version>
-  <release>0.2.1</release>
+  <release>0.2.2</release>
   <api>0.0.7</api>
  </version>
  <stability>
@@ -41,7 +41,7 @@ more than adequate.
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-- fix windows build
+- fix GH-12 Memory leak in dio_read
  </notes>
  <contents>
   <dir name="/">
@@ -58,6 +58,7 @@ more than adequate.
     <file name="dio_raw_stream_005.phpt" role="test" />
     <file name="dio_raw_stream_006.phpt" role="test" />
     <file name="dio_raw_stream_007.phpt" role="test" />
+    <file name="gh12.phpt" role="test" />
    </dir> <!-- //tests -->
    <file name="LICENSE" role="doc" />
    <file name="config.m4" role="src" />
@@ -230,6 +231,21 @@ message.
    <license uri="http://www.php.net/license">PHP</license>
    <notes>
 - fix stream API for PHP 7.4+
+   </notes>
+  </release>
+  <release>
+   <date>2022-01-25</date>
+   <version>
+    <release>0.2.1</release>
+    <api>0.0.7</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <license uri="http://www.php.net/license">PHP</license>
+   <notes>
+- fix windows build
    </notes>
   </release>
  </changelog>

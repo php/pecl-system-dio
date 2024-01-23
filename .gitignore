@@ -19,6 +19,7 @@ run-tests.php
 dio-*.tgz
 
 .deps
+*/*.dep
 Makefile
 Makefile.fragments
 Makefile.objects
