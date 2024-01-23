@@ -2,22 +2,7 @@ PHP_ARG_ENABLE(dio, whether to enable direct I/O support,
 [  --enable-dio            Enable direct I/O support])
 
 if test "$PHP_DIO" != "no"; then
-  AC_MSG_CHECKING(PHP version)
-
-  export OLD_CPPFLAGS="$CPPFLAGS"
-  export CPPFLAGS="$CPPFLAGS $INCLUDES"
-  AC_TRY_COMPILE([#include <php_version.h>], [
-#if PHP_MAJOR_VERSION > 5
-#error  PHP > 5
-#endif
-  ], [
-    subdir=php5
-    AC_MSG_RESULT([PHP 5.x])
-  ], [
-    subdir=php7
-    AC_MSG_RESULT([PHP 7.x])
-  ])
-  export CPPFLAGS="$OLD_CPPFLAGS"
+  subdir=src
   PHP_DIO_SOURCES="
     $subdir/dio.c \
     $subdir/dio_common.c \

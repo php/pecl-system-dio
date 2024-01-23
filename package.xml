@@ -41,7 +41,7 @@ more than adequate.
  </stability>
  <license uri="https://www.php.net/license/3_01.txt" filesource="LICENSE">PHP-3.01</license>
  <notes>
-- 
+- drop PHP 5 support
  </notes>
  <contents>
   <dir name="/">
@@ -63,20 +63,7 @@ more than adequate.
    <file name="LICENSE" role="doc" />
    <file name="config.m4" role="src" />
    <file name="config.w32" role="src" />
-   <dir name="php5">
-    <file name="dio.c" role="src" />
-    <file name="dio_common.c" role="src" />
-    <file name="dio_posix.c" role="src" />
-    <file name="dio_win32.c" role="src" />
-    <file name="dio_stream_wrappers.c" role="src" />
-    <file name="php_dio.h" role="src" />
-    <file name="php_dio_common.h" role="src" />
-    <file name="php_dio_common_data.h" role="src" />
-    <file name="php_dio_posix.h" role="src" />
-    <file name="php_dio_win32.h" role="src" />
-    <file name="php_dio_stream_wrappers.h" role="src" />
-   </dir>
-   <dir name="php7">
+   <dir name="src">
     <file name="dio.c" role="src" />
     <file name="dio_common.c" role="src" />
     <file name="dio_posix.c" role="src" />
@@ -94,10 +81,10 @@ more than adequate.
  <dependencies>
   <required>
    <php>
-    <min>5.3.3</min>
+    <min>7.0.0</min>
    </php>
    <pearinstaller>
-    <min>1.9.4</min>
+    <min>1.10.0</min>
    </pearinstaller>
   </required>
  </dependencies>

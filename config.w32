@@ -5,11 +5,7 @@ ARG_ENABLE("dio", "Enable the direct I/O support", "no");
 if (PHP_DIO != "no") {
 	var old_conf_dir = configure_module_dirname;
 
-	if (PHP_VERSION <= 5) {
-		configure_module_dirname = configure_module_dirname + "\\php5";
-	} else {
-		configure_module_dirname = configure_module_dirname + "\\php7";
-	}
+	configure_module_dirname = configure_module_dirname + "\\src";
 
 	EXTENSION("dio", "dio.c dio_common.c dio_win32.c dio_stream_wrappers.c");
 	configure_module_dirname = old_conf_dir;
