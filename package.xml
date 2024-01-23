@@ -42,6 +42,7 @@ more than adequate.
  <license uri="https://www.php.net/license/3_01.txt" filesource="LICENSE">PHP-3.01</license>
  <notes>
 - drop PHP 5 support
+- add type hinting with PHP 8+
  </notes>
  <contents>
   <dir name="/">
@@ -65,6 +66,9 @@ more than adequate.
    <file name="config.w32" role="src" />
    <dir name="src">
     <file name="dio.c" role="src" />
+    <file name="dio.stub.php" role="src" />
+    <file name="dio_arginfo.h" role="src" />
+    <file name="dio_legacy_arginfo.h" role="src" />
     <file name="dio_common.c" role="src" />
     <file name="dio_posix.c" role="src" />
     <file name="dio_win32.c" role="src" />

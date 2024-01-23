@@ -47,6 +47,11 @@
 # endif /* CNEW_RTSCTS */
 #endif /* !CRTSCTS */
 
+#if PHP_VERSION_ID < 80000
+#include "dio_legacy_arginfo.h"
+#else
+#include "dio_arginfo.h"
+#endif
 /*
    +----------------------------------------------------------------------+
    |                       DEPRECATED FUNCTIONALITY                       |
@@ -738,116 +743,16 @@ static void dio_init_legacy_defines(int module_number) {
 #endif
 }
 
-ZEND_BEGIN_ARG_INFO_EX(dio_open_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, filename)
-	ZEND_ARG_INFO(0, flags)
-	ZEND_ARG_INFO(0, mode)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(dio_fdopen_args, 0, 0, 1)
-	ZEND_ARG_INFO(0, fd)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(dio_dup_args, 0, 0, 1)
-	ZEND_ARG_INFO(0, fd)
-ZEND_END_ARG_INFO()
-
-
-ZEND_BEGIN_ARG_INFO_EX(dio_read_args, 0, 0, 1)
-	ZEND_ARG_INFO(0, fd)
-	ZEND_ARG_INFO(0, n)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(dio_write_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, fd)
-	ZEND_ARG_INFO(0, data)
-	ZEND_ARG_INFO(0, len)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(dio_stat_args, 0, 0, 1)
-	ZEND_ARG_INFO(0, fd)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(dio_truncate_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, fd)
-	ZEND_ARG_INFO(0, offset)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(dio_seek_args, 0, 0, 3)
-	ZEND_ARG_INFO(0, fd)
-	ZEND_ARG_INFO(0, pos)
-	ZEND_ARG_INFO(0, whence)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(dio_fcntl_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, fd)
-	ZEND_ARG_INFO(0, cmd)
-	ZEND_ARG_INFO(0, arg)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(dio_tcsetattr_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, fd)
-	ZEND_ARG_INFO(0, args)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(dio_close_args, 0, 0, 1)
-	ZEND_ARG_INFO(0, fd)
-ZEND_END_ARG_INFO()
-
 /*
    +----------------------------------------------------------------------+
    |                   END OF DEPRECATED FUNCTIONALITY                    |
    +----------------------------------------------------------------------+
  */
 
-ZEND_BEGIN_ARG_INFO_EX(dio_raw_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, filename)
-	ZEND_ARG_INFO(0, mode)
-	ZEND_ARG_INFO(0, options)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(dio_serial_args, 0, 0, 2)
-	ZEND_ARG_INFO(0, filename)
-	ZEND_ARG_INFO(0, mode)
-	ZEND_ARG_INFO(0, options)
-ZEND_END_ARG_INFO()
-
-/* not used static zend_object_handlers dio_raw_object_handlers; */
-
-static zend_function_entry dio_functions[] = {
-	/* Class functions. */
-
-	/* Legacy functions (Deprecated - See dio_legacy.c) */
-	PHP_FE(dio_open, dio_open_args)
-#ifndef PHP_WIN32
-	PHP_FE(dio_fdopen, dio_fdopen_args)
-	PHP_FE(dio_dup, dio_dup_args)
-	PHP_FE(dio_truncate, dio_truncate_args)
-#endif
-	PHP_FE(dio_stat, dio_stat_args)
-	PHP_FE(dio_seek, dio_seek_args)
-#ifndef PHP_WIN32
-	PHP_FE(dio_fcntl, dio_fcntl_args)
-#endif
-	PHP_FE(dio_read, dio_read_args)
-	PHP_FE(dio_write, dio_write_args)
-	PHP_FE(dio_close, dio_close_args)
-#ifndef PHP_WIN32
-	PHP_FE(dio_tcsetattr, dio_tcsetattr_args)
-#endif
-
-	/* Stream functions */
-	PHP_FE(dio_raw, dio_raw_args)
-	PHP_FE(dio_serial, dio_serial_args)
-
-	/* End of functions */
-	{NULL, NULL, NULL}
-};
-
 zend_module_entry dio_module_entry = {
 	STANDARD_MODULE_HEADER,
 	"dio",
-	dio_functions,
+	ext_functions,
 	PHP_MINIT(dio),
 	NULL,
 	NULL,	

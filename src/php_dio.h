@@ -31,17 +31,6 @@ PHP_RINIT_FUNCTION(dio);
 PHP_RSHUTDOWN_FUNCTION(dio);
 PHP_MINFO_FUNCTION(dio);
 
-/* Legacy functions. */
-PHP_FUNCTION(dio_open);
-PHP_FUNCTION(dio_truncate);
-PHP_FUNCTION(dio_stat);
-PHP_FUNCTION(dio_seek);
-PHP_FUNCTION(dio_read);
-PHP_FUNCTION(dio_write);
-PHP_FUNCTION(dio_fcntl);
-PHP_FUNCTION(dio_close);
-PHP_FUNCTION(dio_tcsetattr);
-
 typedef struct {
 	int fd;
 } php_fd_t;

@@ -31,11 +31,7 @@
 
 extern php_stream_wrapper php_dio_raw_stream_wrapper;
 
-PHP_FUNCTION(dio_raw);
-
 extern php_stream_wrapper php_dio_serial_stream_wrapper;
-
-PHP_FUNCTION(dio_serial);
 
 #endif /* PHP_DIO_STREAM_WRAPPERS_H_ */
 

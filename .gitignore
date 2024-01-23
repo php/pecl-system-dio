@@ -7,6 +7,7 @@ config.guess
 config.h.in
 config.h.in~
 config.sub
+configure~
 configure
 configure.in
 configure.ac
