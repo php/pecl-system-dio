@@ -208,10 +208,9 @@ PHP_FUNCTION(dio_read)
 		RETURN_NULL();
 	}
 
-	data = erealloc(data, res + 1);
 	data[res] = 0;
 
-	RETURN_STRINGL(data, res);
+	RETVAL_STRINGL(data, res);
 	efree(data);
 }
 /* }}} */
