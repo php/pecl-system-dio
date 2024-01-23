@@ -32,16 +32,16 @@ more than adequate.
  </lead>
  <date>2024-01-23</date>
  <version>
-  <release>0.2.2</release>
+  <release>0.3.0dev</release>
   <api>0.0.7</api>
  </version>
  <stability>
   <release>beta</release>
   <api>beta</api>
  </stability>
- <license uri="http://www.php.net/license">PHP</license>
+ <license uri="https://www.php.net/license/3_01.txt" filesource="LICENSE">PHP-3.01</license>
  <notes>
-- fix GH-12 Memory leak in dio_read
+- 
  </notes>
  <contents>
   <dir name="/">
@@ -246,6 +246,21 @@ message.
    <license uri="http://www.php.net/license">PHP</license>
    <notes>
 - fix windows build
+   </notes>
+  </release>
+  <release>
+   <date>2024-01-23</date>
+   <version>
+    <release>0.2.2</release>
+    <api>0.0.7</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <license uri="http://www.php.net/license">PHP</license>
+   <notes>
+  - fix GH-12 Memory leak in dio_read
    </notes>
   </release>
  </changelog>
