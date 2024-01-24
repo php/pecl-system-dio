@@ -2,7 +2,7 @@
 
 /** 
  * @generate-class-entries
- * @generate-legacy-arginfo
+ * @generate-legacy-arginfo 80000
  */
 
 /**

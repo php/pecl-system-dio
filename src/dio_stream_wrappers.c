@@ -34,11 +34,7 @@
 /* {{{ dio_stream_write
  * Write to the stream
  */
-#if PHP_VERSION_ID < 70400
-static size_t dio_stream_write(php_stream *stream, const char *buf, size_t count)
-#else
 static ssize_t dio_stream_write(php_stream *stream, const char *buf, size_t count)
-#endif
 {
 	return dio_common_write((php_dio_stream_data*)stream->abstract, buf, count);
 }
@@ -47,15 +43,9 @@ static ssize_t dio_stream_write(php_stream *stream, const char *buf, size_t coun
 /* {{{ dio_stream_read
  * Read from the stream
  */
-#if PHP_VERSION_ID < 70400
-static size_t dio_stream_read(php_stream *stream, char *buf, size_t count)
-{
-	size_t bytes;
-#else
 static ssize_t dio_stream_read(php_stream *stream, char *buf, size_t count)
 {
 	ssize_t bytes;
-#endif
 	php_dio_stream_data* data = (php_dio_stream_data*)stream->abstract;
 	bytes = dio_common_read(data, buf, count);
 	stream->eof = data->end_of_file;

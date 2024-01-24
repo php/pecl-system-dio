@@ -246,13 +246,8 @@ php_dio_stream_data * dio_create_stream_data(void) {
 /* {{{ dio_common_write
  * Writes count chars from the buffer to the stream described by the stream data.
  */
-#if PHP_VERSION_ID < 70400
-size_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count) {
-	size_t ret;
-#else
 ssize_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count) {
 	ssize_t ret;
-#endif
 
 	/* Blocking writes can be interrupted by signals etc. If
 	 * interrupted try again. Not sure about non-blocking
@@ -264,11 +259,7 @@ ssize_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t coun
 		}
 	} while (errno == EINTR);
 
-#if PHP_VERSION_ID < 70400
-	return 0;
-#else
 	return ret;
-#endif
 }
 /* }}} */
 
@@ -311,11 +302,7 @@ static int dio_timeval_subtract(struct timeval *late, struct timeval *early, str
 /* {{{ dio_common_read
  * Reads count chars to the buffer to the stream described by the stream data.
  */
-#if PHP_VERSION_ID < 70400
-size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count) {
-#else
 ssize_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count) {
-#endif
 	int fd = ((php_dio_posix_stream_data*)data)->fd;
 	size_t ret, total = 0;
 	char *ptr = (char*)buf;
@@ -335,11 +322,7 @@ ssize_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count
 				data->end_of_file = 1;
 			}
 		} while ((errno == EINTR) && !data->end_of_file);
-#if PHP_VERSION_ID < 70400
-		return 0;
-#else
 		return ret;
-#endif
 	}
 #ifdef DIO_NONBLOCK
 	else {
@@ -366,11 +349,7 @@ ssize_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count
 			ret = select(fd + 1, &rfds, NULL, NULL, &timeouttmp);
 			/* An error. */
 			if ((ret < 0) && (errno != EINTR) && (errno != EAGAIN)) {
-#if PHP_VERSION_ID < 70400
-				return 0;
-#else
 				return ret;
-#endif
 			}
 
 			/* We have data to read. */
@@ -378,11 +357,7 @@ ssize_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count
 				ret = read(fd, ptr, count);
 				/* Another error */
 				if ((ret < 0) && (errno != EINTR) && (errno != EAGAIN)) {
-#if PHP_VERSION_ID < 70400
-					return 0;
-#else
 					return ret;
-#endif
 				}
 
 				if (ret > 0) {

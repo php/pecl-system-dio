@@ -47,11 +47,8 @@
 # endif /* CNEW_RTSCTS */
 #endif /* !CRTSCTS */
 
-#if PHP_VERSION_ID < 80000
-#include "dio_legacy_arginfo.h"
-#else
 #include "dio_arginfo.h"
-#endif
+
 /*
    +----------------------------------------------------------------------+
    |                       DEPRECATED FUNCTIONALITY                       |

@@ -45,15 +45,9 @@ void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_s
 
 void dio_stream_context_get_serial_options(php_stream_context *context, php_dio_stream_data *data);
 
-#if PHP_VERSION_ID < 70400
-size_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count);
-
-size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count);
-#else
 ssize_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count);
 
 ssize_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count);
-#endif
 
 int dio_common_close(php_dio_stream_data *data);
 

@@ -219,11 +219,7 @@ php_dio_stream_data * dio_create_stream_data(void) {
 /* {{{ dio_common_write
  * Writes count chars from the buffer to the stream described by the stream data.
  */
-#if PHP_VERSION_ID < 70400
-size_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count) {
-#else
 ssize_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t count) {
-#endif
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
 	DWORD total = 0;
 
@@ -231,11 +227,7 @@ ssize_t dio_common_write(php_dio_stream_data *data, const char *buf, size_t coun
 		return (size_t)total;
 	}
 
-#if PHP_VERSION_ID < 70400
-	return 0;
-#else
 	return -1;
-#endif
 }
 /* }}} */
 
@@ -319,11 +311,7 @@ static size_t dio_buffer_read(php_dio_win32_stream_data *wdata, const char *buf,
 /* {{{ dio_com_read
  * Read chars from the data port.
  */
-#if PHP_VERSION_ID < 70400
-static size_t dio_com_read(php_dio_stream_data *data, const char *buf, size_t count) {
-#else
 static ssize_t dio_com_read(php_dio_stream_data *data, const char *buf, size_t count) {
-#endif
 	php_dio_win32_stream_data *wdata = (php_dio_win32_stream_data*)data;
 	DWORD err, total = 0;
 
@@ -344,22 +332,14 @@ static ssize_t dio_com_read(php_dio_stream_data *data, const char *buf, size_t c
 		}
 	}
 
-#if PHP_VERSION_ID < 70400
-	return 0;
-#else
 	return (data->end_of_file ? 0 : -1);
-#endif
 }
 
 /* {{{ dio_canonical_read
  * Reads chars from the input stream until the internal buffer is full or a new
  * line is reached.
  */
-#if PHP_VERSION_ID < 70400
-static size_t dio_canonical_read(php_dio_win32_stream_data *wdata, const char *buf, size_t count) {
-#else
 static ssize_t dio_canonical_read(php_dio_win32_stream_data *wdata, const char *buf, size_t count) {
-#endif
 	php_dio_win32_canon_data *canon_data = wdata->canon_data;
 	size_t total = 0;
 	char ch;
@@ -403,11 +383,7 @@ static ssize_t dio_canonical_read(php_dio_win32_stream_data *wdata, const char *
 /* {{{ dio_common_read
  * Reads count chars to the buffer to the stream described by the stream data.
  */
-#if PHP_VERSION_ID < 70400
-size_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count) {
-#else
 ssize_t dio_common_read(php_dio_stream_data *data, const char *buf, size_t count) {
-#endif
 
 	/* You ask for no bytes you'll get none :-) */
 	if (!count) {
