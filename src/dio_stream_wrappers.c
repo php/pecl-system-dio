@@ -199,7 +199,7 @@ PHP_FUNCTION(dio_raw) {
 	size_t mode_len;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss|z", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 
 	/* Check the third argument is an array. */
@@ -359,7 +359,7 @@ PHP_FUNCTION(dio_serial) {
 	size_t mode_len;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss|z", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 
 	/* Check the third argument is an array. */

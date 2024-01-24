@@ -93,7 +93,7 @@ PHP_FUNCTION(dio_open)
 	int       fd;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "sl|l", &file_name, &file_name_length, &flags, &mode) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if (php_check_open_basedir(file_name) || DIO_SAFE_MODE_CHECK(file_name, "wb+")) {
@@ -130,7 +130,7 @@ PHP_FUNCTION(dio_fdopen)
 	int fd;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &lfd) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	fd = (int)lfd;
@@ -158,7 +158,7 @@ PHP_FUNCTION(dio_dup)
 	int dfd;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r", &r_fd) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
@@ -191,7 +191,7 @@ PHP_FUNCTION(dio_read)
 	ssize_t   res;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r|l", &r_fd, &bytes) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
@@ -229,7 +229,7 @@ PHP_FUNCTION(dio_write)
 	ssize_t   res;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "rs|l", &r_fd, &data, &data_len, &trunc_len) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if (trunc_len < 0 || trunc_len > data_len) {
@@ -262,7 +262,7 @@ PHP_FUNCTION(dio_truncate)
 	zend_long      offset;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "rl", &r_fd, &offset) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
@@ -290,7 +290,7 @@ PHP_FUNCTION(dio_stat)
 	struct stat  s;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r", &r_fd) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
@@ -331,7 +331,7 @@ PHP_FUNCTION(dio_seek)
 	zend_long      whence = SEEK_SET;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "rl|l", &r_fd, &offset, &whence) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
@@ -354,7 +354,7 @@ PHP_FUNCTION(dio_fcntl)
 	zend_long      cmd;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "rl|z", &r_fd, &cmd, &arg) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
@@ -466,7 +466,7 @@ PHP_FUNCTION(dio_tcsetattr)
 	zval           *element;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "rz", &r_fd, &arg) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
@@ -673,7 +673,7 @@ PHP_FUNCTION(dio_close)
 	php_fd_t *f;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r", &r_fd) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
