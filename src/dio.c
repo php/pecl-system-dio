@@ -369,8 +369,8 @@ PHP_FUNCTION(dio_fcntl)
 			HashTable      *fh;
 
 			if (!arg) {
-				php_error_docref(NULL, E_WARNING, "expects argument 3 to be array or int, none given");
-				RETURN_FALSE;
+				zend_argument_type_error(3, "must be and array or and integer");
+				RETURN_THROWS();
 			}
 			if (Z_TYPE_P(arg) == IS_ARRAY) {
 				fh = HASH_OF(arg);
@@ -403,8 +403,8 @@ PHP_FUNCTION(dio_fcntl)
 				lk.l_whence = SEEK_SET;
 				lk.l_type   = Z_LVAL_P(arg);
 			} else {
-				php_error_docref(NULL, E_WARNING, "expects argument 3 to be array or int, %s given", zend_zval_type_name(arg));
-				RETURN_FALSE;
+				zend_argument_type_error(3, "must be and array or and integer");
+				RETURN_THROWS();
 			}
 
 			RETURN_LONG(fcntl(f->fd, cmd, &lk));
@@ -428,8 +428,8 @@ PHP_FUNCTION(dio_fcntl)
 			php_fd_t *new_f;
 
 			if (!arg || Z_TYPE_P(arg) != IS_LONG) {
-				php_error_docref(NULL, E_WARNING, "expects argument 3 to be int");
-				RETURN_FALSE;
+				zend_argument_type_error(3, "must be an integer");
+				RETURN_THROWS();
 			}
 
 			if (!new_php_fd(&new_f, fcntl(f->fd, cmd, Z_LVAL_P(arg)))) {
@@ -440,8 +440,8 @@ PHP_FUNCTION(dio_fcntl)
 		}
 		default:
 			if (!arg || Z_TYPE_P(arg) != IS_LONG) {
-				php_error_docref(NULL, E_WARNING, "expects argument 3 to be int");
-				RETURN_FALSE;
+				zend_argument_type_error(3, "must be an integer");
+				RETURN_THROWS();
 			}
 
 			RETURN_LONG(fcntl(f->fd, cmd, Z_LVAL_P(arg)));
