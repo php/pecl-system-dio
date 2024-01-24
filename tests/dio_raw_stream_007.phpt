@@ -14,9 +14,29 @@ Test dio_raw() call
 
 	$f = dio_raw($filename, "r+");
 	if ($f) {
-		echo "dio_raw passed";
+		echo "dio_raw passed\n";
 		fclose($f);
 	}
+	$f = dio_raw($filename, "r+", ['is_blocking' => 1]);
+	if ($f) {
+		echo "dio_raw passed\n";
+		fclose($f);
+	}
+	$f = dio_raw($filename, "r+", NULL);
+	if ($f) {
+		echo "dio_raw passed\n";
+		fclose($f);
+	}
+	try {
+		$f = dio_raw($filename, "r+", "foo");
+	} catch(TypeError $e) {
+		echo $e->getMessage() . "\n";
+	}
 ?>
+Done
 --EXPECT--
 dio_raw passed
+dio_raw passed
+dio_raw passed
+dio_raw(): Argument #3 ($options) must be of type ?array, string given
+Done

@@ -37,7 +37,7 @@ function dio_stat($fd): array|false {}
 /**
  * @param resource $fd
  */
-function dio_seek($fd, int $pos, int $whence=SEEK_SET): int|false {}
+function dio_seek($fd, int $pos, int $whence=SEEK_SET): int {}
 
 #ifndef PHP_WIN32
 /**
@@ -51,17 +51,17 @@ function dio_fcntl($fd, int $cmd, $arg=NULL) {}
 /**
  * @param resource $fd
  */
-function dio_read($fd, int $n=1024): int|null|false {}
+function dio_read($fd, int $n=1024): ?string {}
 
 /**
  * @param resource $fd
  */
-function dio_write($fd, string $data, int $len=0): int|false {}
+function dio_write($fd, string $data, int $len=0): int {}
 
 /**
  * @param resource $fd
  */
-function dio_close($fd): null|false {}
+function dio_close($fd): void {}
 
 #ifndef PHP_WIN32
 /**

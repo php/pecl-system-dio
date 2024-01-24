@@ -37,9 +37,9 @@ php_dio_stream_data * dio_create_stream_data(void);
 
 void dio_init_stream_data(php_dio_stream_data *data);
 
-void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data);
+void dio_assoc_array_get_basic_options(HashTable *opthash, php_dio_stream_data *data);
 
-void dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data);
+void dio_assoc_array_get_serial_options(HashTable *opthash, php_dio_stream_data *data);
 
 void dio_stream_context_get_basic_options(php_stream_context *context, php_dio_stream_data *data);
 

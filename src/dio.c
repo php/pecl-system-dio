@@ -162,7 +162,7 @@ PHP_FUNCTION(dio_dup)
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 
 	dfd = dup(f->fd);
@@ -195,12 +195,12 @@ PHP_FUNCTION(dio_read)
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 
 	if (bytes <= 0) {
-		php_error_docref(NULL, E_WARNING, "Length parameter must be greater than 0.");
-		RETURN_FALSE;
+		zend_argument_value_error(1, "must be greater than 0");
+		RETURN_THROWS();
 	}
 
 	data = emalloc(bytes + 1);
@@ -233,12 +233,12 @@ PHP_FUNCTION(dio_write)
 	}
 
 	if (trunc_len < 0 || trunc_len > data_len) {
-		php_error_docref(NULL, E_WARNING, "length must be greater or equal to zero and less than the length of the specified string.");
-		RETURN_FALSE;
+		zend_argument_value_error(3, "must be greater or equal to zero and less than the length of the specified string");
+		RETURN_THROWS();
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 	
 
@@ -266,7 +266,7 @@ PHP_FUNCTION(dio_truncate)
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 
 	if (ftruncate(f->fd, offset) == -1) {
@@ -294,7 +294,7 @@ PHP_FUNCTION(dio_stat)
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 
 	if (fstat(f->fd, &s) == -1) {
@@ -335,7 +335,7 @@ PHP_FUNCTION(dio_seek)
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 
 	RETURN_LONG(zend_lseek(f->fd, offset, whence));
@@ -358,7 +358,7 @@ PHP_FUNCTION(dio_fcntl)
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 
 	switch (cmd) {
@@ -457,7 +457,6 @@ PHP_FUNCTION(dio_fcntl)
 PHP_FUNCTION(dio_tcsetattr)
 {
 	zval     *r_fd;
-	zval     *arg = NULL;
 	php_fd_t *f;
 	struct termios newtio;
 	int Baud_Rate, Data_Bits=8, Stop_Bits=1, Parity=0, Flow_Control=1, Is_Canonical=1;
@@ -465,20 +464,13 @@ PHP_FUNCTION(dio_tcsetattr)
 	HashTable      *fh;
 	zval           *element;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "rz", &r_fd, &arg) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "rh", &r_fd, &fh) == FAILURE) {
 		RETURN_THROWS();
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
-
-	if (Z_TYPE_P(arg) != IS_ARRAY) {
-		php_error_docref(NULL, E_WARNING,"tcsetattr, third argument should be an associative array");
-		return;
-	}
-
-	fh = HASH_OF(arg);
 
 	if ((element = zend_hash_str_find(fh, "baud", sizeof("baud") - 1)) == NULL) {
 		Baud_Rate = 9600;
@@ -677,7 +669,7 @@ PHP_FUNCTION(dio_close)
 	}
 
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 
 	zend_list_close(Z_RES_P(r_fd));

@@ -189,7 +189,7 @@ php_stream_wrapper php_dio_raw_stream_wrapper = {
  * Opens a raw direct IO stream.
  */
 PHP_FUNCTION(dio_raw) {
-	zval *options = NULL;
+	HashTable *options = NULL;
 	php_dio_stream_data *data;
 	php_stream *stream;
 
@@ -198,13 +198,8 @@ PHP_FUNCTION(dio_raw) {
 	char *mode;
 	size_t mode_len;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss|z", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss|h!", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
 		RETURN_THROWS();
-	}
-
-	/* Check the third argument is an array. */
-	if (options && (Z_TYPE_P(options) != IS_ARRAY)) {
-		RETURN_FALSE;
 	}
 
 	/* Check we can actually access the file. */
@@ -349,7 +344,7 @@ php_stream_wrapper php_dio_serial_stream_wrapper = {
  * Opens a serial direct IO stream.
  */
 PHP_FUNCTION(dio_serial) {
-	zval *options = NULL;
+	HashTable *options = NULL;
 	php_dio_stream_data *data;
 	php_stream *stream;
 
@@ -358,14 +353,8 @@ PHP_FUNCTION(dio_serial) {
 	char *mode;
 	size_t mode_len;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss|z", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss|h!", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
 		RETURN_THROWS();
-	}
-
-	/* Check the third argument is an array. */
-	if (options && (Z_TYPE_P(options) != IS_ARRAY)) {
-		php_error_docref(NULL, E_WARNING,"dio_serial, the third argument should be an array of options");
-		RETURN_FALSE;
 	}
 
 	/* Check we can actually access the file. */

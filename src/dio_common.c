@@ -54,12 +54,9 @@ void dio_init_stream_data(php_dio_stream_data *data) {
 /* {{{ dio_assoc_array_get_basic_options
  * Retrieves the basic open option values from an associative array
  */
-void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data) {
+void dio_assoc_array_get_basic_options(HashTable *opthash, php_dio_stream_data *data) {
 #if defined(DIO_HAS_FILEPERMS) || defined(DIO_NONBLOCK)
 	zval      *tmpzval;
-	HashTable *opthash;
-
-	opthash = HASH_OF(options);
 #endif
 
 #ifdef DIO_HAS_FILEPERMS
@@ -97,11 +94,8 @@ void dio_assoc_array_get_basic_options(zval *options, php_dio_stream_data *data)
 /* {{{ dio_assoc_array_get_serial_options
  * Retrieves the serial open option values from an associative array
  */
-void dio_assoc_array_get_serial_options(zval *options, php_dio_stream_data *data) {
+void dio_assoc_array_get_serial_options(HashTable *opthash, php_dio_stream_data *data) {
 	zval *tmpzval;
-	HashTable *opthash;
-
-	opthash = HASH_OF(options);
 
 	if ((tmpzval = zend_hash_str_find(opthash, "data_rate", sizeof("data_rate") -1)) != NULL) {
 		data->data_rate = zval_get_long(tmpzval);
