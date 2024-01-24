@@ -22,8 +22,6 @@
 #define DIO_SERIAL_STREAM_NAME      "dio.serial"
 #define DIO_SERIAL_STREAM_PROTOCOL  "dio.serial://"
 
-#define DIO_SAFE_MODE_CHECK(f, m) (0)
-
 extern php_stream_wrapper php_dio_raw_stream_wrapper;
 
 extern php_stream_wrapper php_dio_serial_stream_wrapper;

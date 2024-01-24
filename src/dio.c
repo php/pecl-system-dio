@@ -96,7 +96,7 @@ PHP_FUNCTION(dio_open)
 		RETURN_THROWS();
 	}
 
-	if (php_check_open_basedir(file_name) || DIO_SAFE_MODE_CHECK(file_name, "wb+")) {
+	if (php_check_open_basedir(file_name)) {
 		RETURN_FALSE;
 	}
 
