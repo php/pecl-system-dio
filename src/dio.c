@@ -121,7 +121,6 @@ PHP_FUNCTION(dio_open)
 /* }}} */
 
 #ifndef PHP_WIN32
-
 /* {{{ proto resource dio_fdopen(int fd)
    Returns a resource for the specified file descriptor. */
 PHP_FUNCTION(dio_fdopen)
@@ -252,7 +251,6 @@ PHP_FUNCTION(dio_write)
 /* }}} */
 
 #ifndef PHP_WIN32
-
 /* {{{ proto bool dio_truncate(resource fd, int offset)
    Truncate file descriptor fd to offset bytes */
 PHP_FUNCTION(dio_truncate)
@@ -343,7 +341,6 @@ PHP_FUNCTION(dio_seek)
 /* }}} */
 
 #ifndef PHP_WIN32
-
 /* {{{ proto mixed dio_fcntl(resource fd, int cmd[, mixed arg])
    Perform a c library fcntl on fd */
 PHP_FUNCTION(dio_fcntl)
@@ -451,7 +448,6 @@ PHP_FUNCTION(dio_fcntl)
 #endif
 
 #ifndef PHP_WIN32
-
 /* {{{ proto mixed dio_tcsetattr(resource fd,  array args )
    Perform a c library tcsetattr on fd */
 PHP_FUNCTION(dio_tcsetattr)
