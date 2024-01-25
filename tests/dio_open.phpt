@@ -1,7 +1,9 @@
 --TEST--
-Test dio legacy open
+Test dio_open
 --SKIPIF--
-<?php if (!extension_loaded("dio")) print "skip"; ?>
+<?php
+if (!extension_loaded("dio")) die("skip extension missing");
+?>
 --FILE--
 <?php 
 	$iswin = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN'); 
@@ -14,10 +16,11 @@ Test dio legacy open
 	
 	$f = dio_open($filename,O_RDONLY);
 	if ($f) {
-		echo "Legacy open passed";
+		echo "dio_open passed";
+		dio_close($f);
 	} else {
-		echo "Legacy open failed";
+		echo "dio_open failed";
 	}
 ?>
 --EXPECT--
-Legacy open passed
+dio_open passed

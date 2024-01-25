@@ -1,7 +1,9 @@
 --TEST--
 Test dio raw stream open
 --SKIPIF--
-<?php if (!extension_loaded("dio")) print "skip"; ?>
+<?php
+if (!extension_loaded("dio")) die("skip extension missing");
+?>
 --FILE--
 <?php
 	$iswin = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN'); 

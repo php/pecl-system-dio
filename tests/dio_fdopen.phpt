@@ -1,18 +1,19 @@
 --TEST--
-Test dio legacy fdopen
+Test dio_fdopen
 --SKIPIF--
-<?php 
-	if (!extension_loaded("dio")) print "skip"; 
-	if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') print "skip";
+<?php
+if (!extension_loaded("dio")) die("skip extension missing");
+if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') print "skip Linux only";
 ?>
 --FILE--
 <?php 
 	$f = dio_fdopen(1);
 	if ($f) {
-		echo "Legacy fdopen passed";
+		echo "dio_fdopen passed";
+		dio_close($f);
 	} else {
-		echo "Legacy fdopen failed";
+		echo "dio_fdopen failed";
 	}
 ?>
 --EXPECT--
-Legacy fdopen passed
+dio_fdopen passed

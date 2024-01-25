@@ -60,6 +60,7 @@ more than adequate.
     <file name="dio_raw_stream_007.phpt" role="test" />
     <file name="dio_stat.phpt" role="test" />
     <file name="dio_stat_win.phpt" role="test" />
+    <file name="dio_write.phpt" role="test" />
     <file name="gh12.phpt" role="test" />
    </dir> <!-- //tests -->
    <file name="LICENSE" role="doc" />

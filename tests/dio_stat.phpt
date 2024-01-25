@@ -2,8 +2,8 @@
 Test dio_stat
 --SKIPIF--
 <?php
-if (!extension_loaded("dio")) print "skip";
-if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') print "skip Linux only";
+if (!extension_loaded("dio")) die("skip extension missing");
+if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') die("skip Linux only");
 ?>
 --FILE--
 <?php 

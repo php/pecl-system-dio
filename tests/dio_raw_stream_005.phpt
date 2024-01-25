@@ -2,7 +2,7 @@
 Test dio eof read
 --SKIPIF--
 <?php
-	if (!extension_loaded('dio')) print 'skip';
+if (!extension_loaded("dio")) die("skip extension missing");
 ?>
 --FILE--
 <?php 
