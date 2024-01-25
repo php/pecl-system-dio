@@ -43,6 +43,7 @@ more than adequate.
  <notes>
 - drop support for PHP 5 and 7
 - add type hinting
+- raise TypeError and ValueError for unexpected parameters
  </notes>
  <contents>
   <dir name="/">
