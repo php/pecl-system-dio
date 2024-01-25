@@ -92,7 +92,7 @@ PHP_FUNCTION(dio_open)
 	zend_long      mode = 0;
 	int       fd;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "sl|l", &file_name, &file_name_length, &flags, &mode) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "pl|l", &file_name, &file_name_length, &flags, &mode) == FAILURE) {
 		RETURN_THROWS();
 	}
 

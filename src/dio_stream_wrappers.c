@@ -198,7 +198,7 @@ PHP_FUNCTION(dio_raw) {
 	char *mode;
 	size_t mode_len;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss|h!", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ps|h!", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
 		RETURN_THROWS();
 	}
 
@@ -353,7 +353,7 @@ PHP_FUNCTION(dio_serial) {
 	char *mode;
 	size_t mode_len;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss|h!", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ps|h!", &filename, &filename_len, &mode, &mode_len, &options) == FAILURE) {
 		RETURN_THROWS();
 	}
 
