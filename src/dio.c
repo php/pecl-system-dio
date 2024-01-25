@@ -240,7 +240,6 @@ PHP_FUNCTION(dio_write)
 	if ((f = (php_fd_t *) zend_fetch_resource(Z_RES_P(r_fd), le_fd_name, le_fd)) == NULL) {
 		RETURN_THROWS();
 	}
-	
 
 	res = write(f->fd, data, trunc_len ? trunc_len : data_len);
 	if (res == -1) {
@@ -369,7 +368,7 @@ PHP_FUNCTION(dio_fcntl)
 			HashTable      *fh;
 
 			if (!arg) {
-				zend_argument_type_error(3, "must be and array or and integer");
+				zend_argument_type_error(3, "must be and array or an integer");
 				RETURN_THROWS();
 			}
 			if (Z_TYPE_P(arg) == IS_ARRAY) {
@@ -403,7 +402,7 @@ PHP_FUNCTION(dio_fcntl)
 				lk.l_whence = SEEK_SET;
 				lk.l_type   = Z_LVAL_P(arg);
 			} else {
-				zend_argument_type_error(3, "must be and array or and integer");
+				zend_argument_type_error(3, "must be and array or an integer");
 				RETURN_THROWS();
 			}
 
@@ -576,8 +575,8 @@ PHP_FUNCTION(dio_tcsetattr)
 			BAUD = B50;
 			break;
 		default:
-			php_error_docref(NULL, E_WARNING, "invalid baud rate %d", Baud_Rate);
-			RETURN_FALSE;
+			zend_argument_value_error(1, "invalid baud rate %d", Baud_Rate);
+			RETURN_THROWS();
 	}
 	switch (Data_Bits) {
 		case 8:
@@ -593,8 +592,8 @@ PHP_FUNCTION(dio_tcsetattr)
 			DATABITS = CS5;
 			break;
 		default:
-			php_error_docref(NULL, E_WARNING, "invalid data bits %d", Data_Bits);
-			RETURN_FALSE;
+			zend_argument_value_error(1, "invalid data bits %d", Data_Bits);
+			RETURN_THROWS();
 	}
 	switch (Stop_Bits) {
 		case 1:
@@ -604,8 +603,8 @@ PHP_FUNCTION(dio_tcsetattr)
 			STOPBITS = CSTOPB;
 			break;
 		default:
-			php_error_docref(NULL, E_WARNING, "invalid stop bits %d", Stop_Bits);
-			RETURN_FALSE;
+			zend_argument_value_error(1, "invalid stop bits %d", Stop_Bits);
+			RETURN_THROWS();
 	}
 
 	switch (Parity) {
@@ -622,8 +621,8 @@ PHP_FUNCTION(dio_tcsetattr)
 			PARITY = 0;
 			break;
 		default:
-			php_error_docref(NULL, E_WARNING, "invalid parity %d", Parity);
-			RETURN_FALSE;
+			zend_argument_value_error(1, "invalid parity %d", Parity);
+			RETURN_THROWS();
 	}
 
 	memset(&newtio, 0, sizeof(newtio));
@@ -645,12 +644,10 @@ PHP_FUNCTION(dio_tcsetattr)
 	}
 #endif
 
-	if (Is_Canonical)
-
 	newtio.c_cc[VMIN] = 1;
 	newtio.c_cc[VTIME] = 0;
 	tcflush(f->fd, TCIFLUSH);
-	tcsetattr(f->fd,TCSANOW,&newtio);
+	tcsetattr(f->fd, TCSANOW, &newtio);
 
 	RETURN_TRUE;
 }
