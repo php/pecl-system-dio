@@ -10,6 +10,9 @@
    | obtain it through the world-wide-web, please send a note to          |
    | license@php.net so we can mail you a copy immediately.               |
    +----------------------------------------------------------------------+
+   | Authors: Melanie Rhianna Lewis <cyberspice@php.net>                  |
+   |          Remi Collet <remi@php.net>                                  |
+   +----------------------------------------------------------------------+
  */
 
 #ifndef PHP_DIO_H
@@ -22,7 +25,7 @@
 extern zend_module_entry dio_module_entry;
 #define phpext_dio_ptr &dio_module_entry
 
-#define PHP_DIO_VERSION "0.3.0-dev"
+#define PHP_DIO_VERSION "0.3.0RC1"
 
 /* Standard module functions. */
 PHP_MINIT_FUNCTION(dio);
