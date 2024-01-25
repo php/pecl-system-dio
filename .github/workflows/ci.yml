@@ -20,7 +20,7 @@ jobs:
       - name: make
         run: make
       - name: test
-        run: make test TESTS=tests
+        run: make test TESTS="tests --show-diff"
   windows:
     defaults:
       run:
@@ -53,4 +53,4 @@ jobs:
       - name: make
         run: nmake
       - name: test
-        run: nmake test TESTS=tests
+        run: nmake test TESTS="tests --show-diff"
