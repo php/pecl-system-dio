@@ -48,11 +48,9 @@ more than adequate.
  <contents>
   <dir name="/">
    <dir name="tests">
-    <file name="001.phpt" role="test" />
-    <file name="002.phpt" role="test" />
-    <file name="003.phpt" role="test" />
-    <file name="004.phpt" role="test" />
-    <file name="004w.phpt" role="test" />
+    <file name="dio_dup.phpt" role="test" />
+    <file name="dio_fdopen.phpt" role="test" />
+    <file name="dio_open.phpt" role="test" />
     <file name="dio_raw_stream_001.phpt" role="test" />
     <file name="dio_raw_stream_002.phpt" role="test" />
     <file name="dio_raw_stream_003.phpt" role="test" />
@@ -60,6 +58,8 @@ more than adequate.
     <file name="dio_raw_stream_005.phpt" role="test" />
     <file name="dio_raw_stream_006.phpt" role="test" />
     <file name="dio_raw_stream_007.phpt" role="test" />
+    <file name="dio_stat.phpt" role="test" />
+    <file name="dio_stat_win.phpt" role="test" />
     <file name="gh12.phpt" role="test" />
    </dir> <!-- //tests -->
    <file name="LICENSE" role="doc" />
