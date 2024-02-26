@@ -1,9 +1,6 @@
-name: Build
+name: Build artifacts
 
 on:
-    push:
-        branches: [master]
-    pull_request:
     release:
         types: [created]
     create:
