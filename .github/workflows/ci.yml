@@ -33,7 +33,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout dio
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup PHP
         id: setup-php
         uses: php/setup-php-sdk@v0.8
