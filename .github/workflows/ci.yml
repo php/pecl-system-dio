@@ -4,7 +4,7 @@ jobs:
   ubuntu:
     strategy:
       matrix:
-        version: ['8.0', '8.1', '8.2', '8.3']
+        version: ['8.3']
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dio
@@ -27,7 +27,7 @@ jobs:
         shell: cmd
     strategy:
       matrix:
-        version: ['8.0', '8.1', '8.2', '8.3']
+        version: ['8.2', '8.3']
         arch: [x64]
         ts: [ts]
     runs-on: windows-latest
@@ -61,6 +61,8 @@ jobs:
         run: configure --enable-dio --with-prefix=${{steps.setup-php.outputs.prefix}}
       - name: make
         run: nmake
+      - name: test
+        run: nmake test TESTS="tests --show-diff"
       - name: Define Module Env
         shell: powershell
         run: |
@@ -73,9 +75,6 @@ jobs:
 
           $artifact_name = 'php_dio-${{env.EXTENSION_VERSION}}-${{matrix.php}}'
 
-          if ('7.2' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vc15' }
-          if ('7.3' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vc15' }
-          if ('7.4' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vc15' }
           if ('8.0' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vs16' }
           if ('8.1' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vs16' }
           if ('8.2' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vs16' }
@@ -85,15 +84,15 @@ jobs:
           if ('x64' -eq '${{matrix.arch}}') { $artifact_name = $artifact_name + '-x86_64' }
 
           $extension_artifact_name = "ARTIFACT_NAME=" + $artifact_name
+          echo $extension_artifact_name
           echo $extension_artifact_name >> $env:GITHUB_ENV
 
           $from = $dir + '\php_dio.dll'
           $to = $dir + '\' + $artifact_name + ".dll"
           Copy-Item $from -Destination $to
           $extension_artifact = "ARTIFACT=" + $to
+          echo $extension_artifact
           echo $extension_artifact >> $env:GITHUB_ENV
-      - name: test
-        run: nmake test TESTS="tests --show-diff"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
