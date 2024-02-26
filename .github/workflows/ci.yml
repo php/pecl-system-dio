@@ -43,6 +43,15 @@ jobs:
           echo "$s"
           $extension_version = 'EXTENSION_VERSION=' + $s
           echo $extension_version >> $env:GITHUB_ENV
+          $artifact_name = 'php_dio-' + $extension_version + '-' + '${{matrix.php}}'
+          if ('8.0' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vs16' }
+          if ('8.1' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vs16' }
+          if ('8.2' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vs16' }
+          if ('8.3' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vs16' }
+          if ('nts' -eq '${{matrix.ts}}') { $artifact_name = $artifact_name + '-nts' }
+          if ('x64' -eq '${{matrix.arch}}') { $artifact_name = $artifact_name + '-x86_64' }
+          $extension_artifact_name = "ARTIFACT_NAME=" + $artifact_name
+          echo $extension_artifact_name >> $env:GITHUB_ENV
       - name: Setup PHP
         id: setup-php
         uses: php/setup-php-sdk@v0.8
@@ -67,33 +76,15 @@ jobs:
         shell: powershell
         run: |
           chcp 65001
-
           $dir = (Get-Location).Path + '\'
           if ('x64' -eq '${{matrix.arch}}') { $dir = $dir + 'x64\' }
           $dir = $dir + 'Release'
           if ('ts' -eq '${{matrix.ts}}') { $dir = $dir + '_TS' }
-
-          $artifact_name = 'php_dio-${{env.EXTENSION_VERSION}}-${{matrix.php}}'
-
-          if ('8.0' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vs16' }
-          if ('8.1' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vs16' }
-          if ('8.2' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vs16' }
-          if ('8.3' -eq '${{matrix.php}}') { $artifact_name = $artifact_name + '-vs16' }
-
-          if ('nts' -eq '${{matrix.ts}}') { $artifact_name = $artifact_name + '-nts' }
-          if ('x64' -eq '${{matrix.arch}}') { $artifact_name = $artifact_name + '-x86_64' }
-
-          $extension_artifact_name = "ARTIFACT_NAME=" + $artifact_name
-          echo $extension_artifact_name
-          echo $extension_artifact_name >> $env:GITHUB_ENV
-
           $from = $dir + '\php_dio.dll'
-          $to = $dir + '\' + $artifact_name + ".dll"
+          $to = $dir + '\${{env.ARTIFACT_NAME}}.dll'
           Copy-Item $from -Destination $to
           $extension_artifact = "ARTIFACT=" + $to
-          echo $extension_artifact
           echo $extension_artifact >> $env:GITHUB_ENV
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
