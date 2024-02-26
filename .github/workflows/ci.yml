@@ -61,8 +61,6 @@ jobs:
         run: configure --enable-dio --with-prefix=${{steps.setup-php.outputs.prefix}}
       - name: make
         run: nmake
-      - name: test
-        run: nmake test TESTS="tests --show-diff"
       - name: Define Module Env
         shell: powershell
         run: |
@@ -94,6 +92,8 @@ jobs:
           Copy-Item $from -Destination $to
           $extension_artifact = "ARTIFACT=" + $to
           echo $extension_artifact >> $env:GITHUB_ENV
+      - name: test
+        run: nmake test TESTS="tests --show-diff"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
