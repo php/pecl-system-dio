@@ -88,8 +88,8 @@ jobs:
           echo $extension_artifact_name
 
           $from = $dir + '\php_dio.dll'
-          $to = $dir + '\' + $artifact_name + ".dll"
-          Copy-Item $from -Destination $to
+          $to = $dir + '\' + $artifact_name + ".zip"
+          Compress-Archive $from $to
           $extension_artifact = "ARTIFACT=" + $to
           echo $extension_artifact >> $env:GITHUB_ENV
           echo $extension_artifact
