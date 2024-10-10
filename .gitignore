@@ -18,6 +18,7 @@ missing
 mkinstalldirs
 run-tests.php
 dio-*.tgz
+sendpackagist
 
 .deps
 */*.dep
