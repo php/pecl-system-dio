@@ -1,0 +1,13 @@
+{
+    "name": "pecl/dio",
+    "type": "php-ext",
+    "license": "PHP-3.01",
+    "description": "Direct I/O functions",
+    "require": {
+        "php": ">= 8.0.0"
+    },
+    "php-ext": {
+        "extension-name": "dio",
+        "configure-options": []
+    }
+}
