@@ -72,11 +72,11 @@ static int dio_stream_close(php_stream *stream, int close_handle)
 	php_dio_stream_data *abstract = (php_dio_stream_data*)stream->abstract;
 
 	if (!dio_common_close(abstract)) {
-		return 0;
+		return 1;
 	}
 
 	efree(abstract);
-	return 1;
+	return 0;
 }
 /* }}} */
 
